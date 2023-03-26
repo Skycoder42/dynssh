@@ -1,11 +1,13 @@
 import 'ssh_config_entry.dart';
 
 class SshConfigOption extends SshConfigEntry {
-  final String keyword;
+  final String _keyword;
 
   final List<String> arguments;
 
-  SshConfigOption(this.keyword, this.arguments, [super.raw]);
+  SshConfigOption(this._keyword, this.arguments, [super.raw]);
+
+  String get keyword => _keyword.toLowerCase();
 
   @override
   String create({required int indentation}) {
@@ -16,7 +18,7 @@ class SshConfigOption extends SshConfigEntry {
       buffer.write('\t' * -1 * indentation);
     }
 
-    buffer.write(keyword);
+    buffer.write(_keyword);
     for (final argument in arguments) {
       buffer.write(' ');
       if (argument.contains(RegExp(r'\w'))) {

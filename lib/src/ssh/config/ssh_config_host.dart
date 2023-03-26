@@ -6,13 +6,10 @@ class SshConfigHost extends SshConfigOption implements SshConfigSection {
   @override
   final List<SshConfigEntry> entries;
 
-  final int? _indentation;
-
   SshConfigHost(
     List<String> patterns, [
     List<SshConfigEntry>? entries,
     String? raw,
-    this._indentation,
   ])  : entries = entries ?? [],
         super('Host', patterns, raw);
 
@@ -21,6 +18,18 @@ class SshConfigHost extends SshConfigOption implements SshConfigSection {
   @override
   Iterable<String> writeSection() => [
         write(),
-        ...entries.map((e) => e.write(indentation: _indentation ?? 0)),
+        ...entries.map((e) => e.write(indentation: _findIndentation())),
       ];
+
+  int _findIndentation() {
+    for (final entry in entries) {
+      final entryLine = entry.write();
+      final firstNonWhitespace = entryLine.indexOf(RegExp(r'\S'));
+      if (firstNonWhitespace > 0) {
+        return firstNonWhitespace;
+      }
+    }
+
+    return 4;
+  }
 }
