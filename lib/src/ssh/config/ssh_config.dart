@@ -9,12 +9,14 @@ class SshConfig {
 
   SshConfig(this.globals, this.hosts);
 
-  void addGlobalEmptyLine() => globals.addEmptyLine();
+  void addEmptyLine() => globals.addEmptyLine();
 
-  void addGlobalComment(String comment) => globals.addComment(comment);
+  void addComment(String comment) => globals.addComment(comment);
 
-  void addGlobalOption(String keyword, List<String> arguments) =>
-      globals.addOption(keyword, arguments);
+  List<String>? operator [](String keyword) => globals[keyword];
+
+  void operator []=(String keyword, List<String> arguments) =>
+      globals[keyword] = arguments;
 
   SshConfigHost addHost(List<String> patterns) {
     final host = SshConfigHost(patterns);
