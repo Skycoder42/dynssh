@@ -9,14 +9,21 @@ import 'config/ssh_config_globals.dart';
 import 'config/ssh_config_host.dart';
 import 'config/ssh_config_option.dart';
 import 'config/ssh_config_section.dart';
+import 'ssh_file_resolver.dart';
 
 // coverage:ignore-start
 final sshConfigParserProvider = Provider(
-  (ref) => SshConfigParser(),
+  (ref) => SshConfigParser(
+    ref.watch(sshFileResolverProvider),
+  ),
 );
 // coverage:ignore-end
 
 class SshConfigParser {
+  final SshFileResolver _sshFileResolver;
+
+  SshConfigParser(this._sshFileResolver);
+
   Future<SshConfig> parse() async {
     final sshConfigFile = _getSshConfigFile();
     if (!sshConfigFile.existsSync()) {
@@ -41,14 +48,7 @@ class SshConfigParser {
     }
   }
 
-  File _getSshConfigFile() {
-    final home = Platform.environment['HOME'];
-    if (home == null) {
-      throw Exception('HOME environment variable is not defined!');
-    }
-
-    return File.fromUri(Directory(home).uri.resolve('.ssh/config'));
-  }
+  File _getSshConfigFile() => _sshFileResolver.getSshFile('config');
 
   Future<SshConfig> _parseConfigLines(Stream<String> configStream) async {
     final globals = SshConfigGlobals([]);
