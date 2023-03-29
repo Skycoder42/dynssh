@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:riverpod/riverpod.dart';
-
 import '../config/config.dart';
 import '../dynssh/dynssh_controller.dart';
 import '../models/host_update.dart';
+import 'http_server.dart';
 
 // coverage:ignore-start
-final dynsshHandlerProvider = Provider(
+final dynsshHandlerProvider = HttpHandlerProvider(
+  canHandle: (url) => url.path == '/dynssh/update',
   (ref) => DynsshHandler(
     ref.watch(configProvider),
     ref.watch(dynsshControllerProvider),
@@ -16,7 +16,7 @@ final dynsshHandlerProvider = Provider(
 );
 // coverage:ignore-end
 
-class DynsshHandler {
+class DynsshHandler implements HttpHandler {
   final Config _config;
   final DynsshController _dynsshController;
 
@@ -25,9 +25,8 @@ class DynsshHandler {
     this._dynsshController,
   );
 
-  bool canHandle(Uri uri) => uri.path == '/dynssh/update';
-
-  Future<void> call(HttpRequest request) async {
+  @override
+  Future<bool> call(HttpRequest request) async {
     final fqdn = request.uri.queryParameters['fqdn'];
     final ipv4 = request.uri.queryParameters['ipv4'];
     final ipv6 = request.uri.queryParameters['ipv6'];
@@ -43,7 +42,7 @@ class DynsshHandler {
         'or contains invalid credentials',
       );
       await request.response.close();
-      return;
+      return true;
     }
 
     final HostUpdate hostUpdate;
@@ -53,14 +52,14 @@ class DynsshHandler {
         ..writeln('Invalid Query!')
         ..writeln('"fdqn" and one of "ipv4" or "ipv6" must be provided!');
       await request.response.close();
-      return;
+      return true;
     } else if (ipv4 != null && ipv6 != null) {
       request.response.statusCode = HttpStatus.badRequest;
       request.response
         ..writeln('Invalid Query!')
         ..writeln('Only one of "ipv4" or "ipv6" can be used!');
       await request.response.close();
-      return;
+      return true;
     } else if (ipv6 != null) {
       hostUpdate = HostUpdate.ipv6(fqdn: fqdn, ipAddress: ipv6);
     } else if (ipv4 != null) {
@@ -73,6 +72,7 @@ class DynsshHandler {
     request.response.statusCode =
         updateResult ? HttpStatus.accepted : HttpStatus.forbidden; // TODO
     await request.response.close();
+    return true;
   }
 
   Future<String?> _buildExpectedAuthHeader(String? fqdn) async {
