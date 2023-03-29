@@ -4,19 +4,26 @@ import 'dart:io';
 import 'package:riverpod/riverpod.dart';
 
 import '../config/config.dart';
+import '../dynssh/dynssh_controller.dart';
+import '../models/host_update.dart';
 
 // coverage:ignore-start
-final dyndnsHandlerProvider = Provider(
-  (ref) => DyndnsHandler(
+final dynsshHandlerProvider = Provider(
+  (ref) => DynsshHandler(
     ref.watch(configProvider),
+    ref.watch(dynsshControllerProvider),
   ),
 );
 // coverage:ignore-end
 
-class DyndnsHandler {
+class DynsshHandler {
   final Config _config;
+  final DynsshController _dynsshController;
 
-  DyndnsHandler(this._config);
+  DynsshHandler(
+    this._config,
+    this._dynsshController,
+  );
 
   bool canHandle(Uri uri) => uri.path == '/dynssh/update';
 
@@ -39,14 +46,32 @@ class DyndnsHandler {
       return;
     }
 
+    final HostUpdate hostUpdate;
     if (fqdn == null || (ipv4 == null && ipv6 == null)) {
       request.response.statusCode = HttpStatus.badRequest;
-      request.response.writeln('Invalid query!');
+      request.response
+        ..writeln('Invalid Query!')
+        ..writeln('"fdqn" and one of "ipv4" or "ipv6" must be provided!');
       await request.response.close();
       return;
+    } else if (ipv4 != null && ipv6 != null) {
+      request.response.statusCode = HttpStatus.badRequest;
+      request.response
+        ..writeln('Invalid Query!')
+        ..writeln('Only one of "ipv4" or "ipv6" can be used!');
+      await request.response.close();
+      return;
+    } else if (ipv6 != null) {
+      hostUpdate = HostUpdate.ipv6(fqdn: fqdn, ipAddress: ipv6);
+    } else if (ipv4 != null) {
+      hostUpdate = HostUpdate.ipv4(fqdn: fqdn, ipAddress: ipv4);
+    } else {
+      throw StateError('Unreachable code reached!');
     }
 
-    request.response.statusCode = HttpStatus.accepted;
+    final updateResult = await _dynsshController.updateHost(hostUpdate);
+    request.response.statusCode =
+        updateResult ? HttpStatus.accepted : HttpStatus.forbidden; // TODO
     await request.response.close();
   }
 

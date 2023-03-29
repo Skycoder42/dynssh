@@ -4,27 +4,27 @@ import 'dart:io';
 import 'package:riverpod/riverpod.dart';
 
 import '../config/config.dart';
-import 'dyndns_handler.dart';
+import 'dynssh_handler.dart';
 
 // coverage:ignore-start
-final dyndnsServerProvider = Provider<DyndnsServer>(
+final dynsshServerProvider = Provider<DynsshServer>(
   (ref) {
     ref.onDispose(() => ref.state.stop());
-    return DyndnsServer(
+    return DynsshServer(
       ref.watch(configProvider),
-      ref.watch(dyndnsHandlerProvider),
+      ref.watch(dynsshHandlerProvider),
     );
   },
 );
 // coverage:ignore-end
 
-class DyndnsServer {
+class DynsshServer {
   final Config _config;
-  final DyndnsHandler _dyndnsHandler;
+  final DynsshHandler _dynsshHandler;
 
   late final HttpServer _server;
 
-  DyndnsServer(this._config, this._dyndnsHandler);
+  DynsshServer(this._config, this._dynsshHandler);
 
   Future<void> start() async {
     _server = await HttpServer.bind(
@@ -45,8 +45,8 @@ class DyndnsServer {
 
   Future<void> _handleRequest(HttpRequest request) async {
     try {
-      if (_dyndnsHandler.canHandle(request.uri)) {
-        await _dyndnsHandler(request);
+      if (_dynsshHandler.canHandle(request.uri)) {
+        await _dynsshHandler(request);
         return;
       }
 
