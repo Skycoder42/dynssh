@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -14,10 +15,11 @@ class _SignalInfo {
 
 final _signalProvider = ProviderFamily<StreamSubscription, _SignalInfo>(
   (ref, arg) {
+    final logger = Logger('signals.${arg.signal}');
     final sub = arg.signal.watch().listen(
       (signal) {
         // ignore: avoid_print
-        print('$signal requested - closing application');
+        logger.finer('signal received! - closing application');
         arg.callback();
       },
       cancelOnError: true,
@@ -29,6 +31,7 @@ final _signalProvider = ProviderFamily<StreamSubscription, _SignalInfo>(
 
 extension ProviderContainerX on ProviderContainer {
   void registerTerminationFor(ProcessSignal signal) {
+    Logger('signals.$signal').finer('Registering signal handler');
     read(_signalProvider(_SignalInfo(signal, dispose)));
   }
 }

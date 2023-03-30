@@ -1,7 +1,7 @@
 import 'ssh_config_entry.dart';
 import 'ssh_config_section.dart';
 
-class SshConfigGlobals implements SshConfigSection {
+class SshConfigGlobals with SshConfigSectionMixin implements SshConfigSection {
   @override
   final List<SshConfigEntry> entries;
 

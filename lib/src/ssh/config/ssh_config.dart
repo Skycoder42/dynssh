@@ -1,6 +1,5 @@
 import 'ssh_config_globals.dart';
 import 'ssh_config_host.dart';
-import 'ssh_config_section.dart';
 
 class SshConfig {
   final SshConfigGlobals globals;

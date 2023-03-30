@@ -8,7 +8,7 @@ abstract class SshConfigSection {
   Iterable<String> writeSection();
 }
 
-extension SshConfigSectionX on SshConfigSection {
+mixin SshConfigSectionMixin implements SshConfigSection {
   void addEmptyLine() => entries.add(SshConfigComment.empty());
 
   void addComment(String comment) => entries.add(SshConfigComment(comment));

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
 
 // coverage:ignore-start
@@ -25,6 +26,7 @@ class ProcessFailed implements Exception {
 
 class ProcessAdapter {
   final IOSink _stderr;
+  final _logger = Logger('$ProcessAdapter');
 
   ProcessAdapter(this._stderr);
 
@@ -33,6 +35,8 @@ class ProcessAdapter {
     List<String> arguments, {
     int? expectedExitCode = 0,
   }) async* {
+    final logLine = _logLine(executable, arguments);
+    _logger.finer('Streaming lines $logLine...');
     final proc = await Process.start(
       executable,
       arguments,
@@ -49,6 +53,9 @@ class ProcessAdapter {
           .transform(const LineSplitter());
 
       final exitCode = await proc.exitCode;
+      _logger.finer(
+        '$logLine completed with exit code: $exitCode',
+      );
       if (expectedExitCode != null) {
         if (exitCode != expectedExitCode) {
           throw ProcessFailed(executable, arguments, exitCode);
@@ -58,4 +65,7 @@ class ProcessAdapter {
       await stderrSub.cancel();
     }
   }
+
+  String _logLine(String executable, List<String> arguments) =>
+      '<<$executable ${arguments.join(' ')}>>';
 }
