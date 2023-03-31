@@ -1,32 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../config/config.dart';
 import 'config/ssh_config.dart';
 import 'config/ssh_config_comment.dart';
 import 'config/ssh_config_globals.dart';
 import 'config/ssh_config_host.dart';
 import 'config/ssh_config_option.dart';
 import 'config/ssh_config_section.dart';
-import 'ssh_file_resolver.dart';
 
 // coverage:ignore-start
 final sshConfigParserProvider = Provider(
   (ref) => SshConfigParser(
-    ref.watch(sshFileResolverProvider),
+    ref.watch(configProvider),
   ),
 );
 // coverage:ignore-end
 
 class SshConfigParser {
-  final SshFileResolver _sshFileResolver;
+  final Config _config;
+  final _logger = Logger('$SshConfigParser');
 
-  SshConfigParser(this._sshFileResolver);
+  SshConfigParser(this._config);
 
   Future<SshConfig> parse() async {
     final sshConfigFile = _getSshConfigFile();
     if (!sshConfigFile.existsSync()) {
+      _logger.warning(
+        'SSH config file does not exist (path: ${sshConfigFile.path})',
+      );
       return SshConfig(SshConfigGlobals([]), []);
     }
 
@@ -48,7 +53,11 @@ class SshConfigParser {
     }
   }
 
-  File _getSshConfigFile() => _sshFileResolver.getSshFile('config');
+  File _getSshConfigFile() {
+    final sshConfigFile = _config.sshFile('config');
+    _logger.finer('Detected SSH config file as: ${sshConfigFile.path}');
+    return sshConfigFile;
+  }
 
   Future<SshConfig> _parseConfigLines(Stream<String> configStream) async {
     final globals = SshConfigGlobals([]);

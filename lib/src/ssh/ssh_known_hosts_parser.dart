@@ -1,25 +1,30 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
 
-import 'ssh_file_resolver.dart';
+import '../config/config.dart';
 
 // coverage:ignore-start
 final sshKnownHostsParserProvider = Provider(
   (ref) => SshKnownHostsParser(
-    ref.watch(sshFileResolverProvider),
+    ref.watch(configProvider),
   ),
 );
 // coverage:ignore-end
 
 class SshKnownHostsParser {
-  final SshFileResolver _sshFileResolver;
+  final Config _config;
+  final _logger = Logger('$SshKnownHostsParser');
 
-  SshKnownHostsParser(this._sshFileResolver);
+  SshKnownHostsParser(this._config);
 
   Future<Map<String, String>> getHostKeys(String host, [int? port]) async {
     final knownHostsFile = _knownHostsFile();
     if (!knownHostsFile.existsSync()) {
+      _logger.warning(
+        'SSH known_hosts file does not exist (path: ${knownHostsFile.path})',
+      );
       return const {};
     }
 
@@ -64,6 +69,9 @@ class SshKnownHostsParser {
   }) async {
     final knownHostsFile = _knownHostsFile();
     if (!knownHostsFile.existsSync()) {
+      _logger.warning(
+        'SSH known_hosts file does not exist (path: ${knownHostsFile.path})',
+      );
       // nothing to be updated
       return;
     }
@@ -79,7 +87,12 @@ class SshKnownHostsParser {
     await knownHostsFile.writeAsString(updatedContent);
   }
 
-  File _knownHostsFile() => _sshFileResolver.getSshFile('known_hosts');
+  File _knownHostsFile() {
+    final sshKnownHostsFile = _config.sshFile('known_hosts');
+    _logger
+        .finer('Detected SSH known_hosts file as: ${sshKnownHostsFile.path}');
+    return sshKnownHostsFile;
+  }
 
   String _origin(String host, int? port) =>
       port != null ? '[$host]:$port' : host;

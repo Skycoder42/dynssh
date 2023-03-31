@@ -21,6 +21,9 @@ class Config {
 
   int get port => _cliOptions.port;
 
+  File sshFile(String name) =>
+      File.fromUri(Directory(_cliOptions.sshDirectory).uri.resolve(name));
+
   Future<String?> findApiKey(String host) async {
     final apiKeyFile = File(_cliOptions.apiKeyPath);
     if (!apiKeyFile.existsSync()) {

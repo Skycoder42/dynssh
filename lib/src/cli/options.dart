@@ -40,7 +40,7 @@ class Options {
     help: 'The path to the ssh directory where configuration files are stored.',
     provideDefaultToOverride: true,
   )
-  final String sshConfigDir;
+  final String sshDirectory;
 
   @CliOption(
     convert: _logLevelFromString,
@@ -76,7 +76,7 @@ class Options {
     required this.host,
     required this.port,
     required this.apiKeyPath,
-    required this.sshConfigDir,
+    required this.sshDirectory,
     required this.logLevel,
     this.help = false,
   });
@@ -85,7 +85,7 @@ class Options {
     ..config('host: $host')
     ..config('port: $port')
     ..config('apiKeyPath: $apiKeyPath')
-    ..config('sshConfigDir: $sshConfigDir')
+    ..config('sshConfigDir: $sshDirectory')
     ..config('logLevel: $logLevel');
 
   static ArgParser buildArgParser() => _$populateOptionsParser(
@@ -95,7 +95,7 @@ class Options {
         ),
         hostDefaultOverride: InternetAddress.anyIPv4.address,
         apiKeyPathDefaultOverride: _apiKeyPathDefault,
-        sshConfigDirDefaultOverride: _sshConfigDirDefault,
+        sshDirectoryDefaultOverride: _sshDirectoryDefault,
       );
 
   static Options parseOptions(ArgResults argResults) =>
@@ -120,13 +120,14 @@ class Options {
     }
   }
 
-  static String get _sshConfigDirDefault {
+  static String get _sshDirectoryDefault {
+    const globalSshDir = '/etc/ssh';
     if (_isRoot) {
-      return '/etc/ssh';
+      return globalSshDir;
     } else {
       final homePath = Platform.environment['HOME'];
       if (homePath == null) {
-        return Directory.current.path;
+        return globalSshDir;
       }
 
       return Directory(homePath).uri.resolve('.ssh').toFilePath();

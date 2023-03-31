@@ -32,7 +32,7 @@ class HttpHandlerProvider<T extends HttpHandler> extends Provider<T> {
   HttpHandlerProvider(
     super.createFn, {
     required this.canHandle,
-    super.name,
+    required String super.name,
     super.dependencies,
   });
 }
@@ -77,11 +77,13 @@ class HttpServer {
   }
 
   Future<void> _handleRequest(io.HttpRequest request) async {
-    _logger.fine('Handling incoming request: $request');
+    _logger
+        .fine('Handling incoming request: ${_stringifyHttpRequest(request)}');
     final container = ProviderContainer(parent: _di);
     try {
       for (final provider in _handlerProviders) {
         if (provider.canHandle(request.uri)) {
+          _logger.fine('Using handler: ${provider.name}');
           final handler = container.read(provider);
           final didHandle = await handler(request);
           if (didHandle) {
@@ -100,7 +102,8 @@ class HttpServer {
       // ignore: avoid_catches_without_on_clauses
     } catch (e, s) {
       _logger.severe(
-        'Error of type ${e.runtimeType} occurred when processing $request:',
+        'Error of type ${e.runtimeType} occurred when processing '
+        '${_stringifyHttpRequest(request)}:',
         e,
         s,
       );
@@ -137,4 +140,7 @@ class HttpServer {
     );
     await stop(force: true);
   }
+
+  String _stringifyHttpRequest(io.HttpRequest request) =>
+      '${request.method} ${request.uri}';
 }
