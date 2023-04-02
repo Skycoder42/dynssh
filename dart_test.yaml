@@ -1,0 +1,9 @@
+presets:
+  unit:
+    paths:
+      - test/unit
+
+  integration:
+    timeout: 2x
+    paths:
+      - test/integration

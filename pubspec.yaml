@@ -6,6 +6,10 @@ publish_to: none
 environment:
   sdk: ">=2.19.0 <3.0.0"
 
+platforms:
+  linux:
+  macos:
+
 executables:
   dynssh:
 
