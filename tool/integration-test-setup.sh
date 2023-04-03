@@ -2,7 +2,7 @@
 set -eo pipefail
 
 echo ::group::Setup SSH
-sudo systemctl start sshd.service
+sudo service ssh start
 
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
@@ -22,5 +22,5 @@ chmod 600 ~/.ssh/config
 echo ::endgroup::
 
 echo ::group::Compile dynssh
-dart compile exe bin/dynssh.dart -o /usr/local/bin/dynssh
+sudo dart compile exe bin/dynssh.dart -o /usr/local/bin/dynssh
 echo ::endgroup::

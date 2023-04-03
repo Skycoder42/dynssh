@@ -2,7 +2,9 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/alpine
 {
   "name": "Dart (Stable)",
-  "image": "skycoder42/devcontainers-flutter:latest",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "customizations": {
     "vscode": {
       "extensions": [

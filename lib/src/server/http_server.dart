@@ -44,8 +44,11 @@ class HttpServer {
 
   late final ProviderContainer _di;
   late final io.HttpServer _server;
+  var _open = false;
 
   HttpServer(this._config);
+
+  int get port => _server.port;
 
   void registerHandler(HttpHandlerProvider provider) {
     _logger.config('Registering HTTP-Handler: ${provider.name}');
@@ -53,26 +56,33 @@ class HttpServer {
   }
 
   Future<void> start(ProviderContainer di) async {
-    _logger.info(
-      'Starting HTTP-Server; Listening on ${_config.host}:${_config.port}...',
-    );
+    _logger.info('Starting HTTP-Server...');
     _di = di;
     _server = await io.HttpServer.bind(
       _config.host,
       _config.port,
     );
+    _open = true;
 
     _server.listen(
       _handleRequest,
       onError: _handleListenError,
       cancelOnError: true,
     );
-    _logger.info('Server started and ready for incoming connections!');
+    _logger.info(
+      'Server ready and listening on '
+      '${_server.address.address}:${_server.port}',
+    );
   }
 
   Future<void> stop({bool force = false}) async {
+    if (!_open && !force) {
+      return;
+    }
+
     _logger.info('Stopping server (force: $force)...');
     await _server.close(force: force);
+    _open = false;
     _logger.info('Server stopped');
   }
 

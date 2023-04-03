@@ -31,6 +31,13 @@ class DynsshHandler implements HttpHandler {
 
   @override
   Future<bool> call(HttpRequest request) async {
+    if (request.method != 'POST') {
+      request.response.statusCode = HttpStatus.methodNotAllowed;
+      request.response.writeln('This endpoint only accepts POST-Requests');
+      await request.response.close();
+      return true;
+    }
+
     final fqdn = request.uri.queryParameters['fqdn'];
     final ipv4 = request.uri.queryParameters['ipv4'];
     final ipv6 = request.uri.queryParameters['ipv6'];
