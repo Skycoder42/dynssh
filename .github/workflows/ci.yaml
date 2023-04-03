@@ -11,7 +11,6 @@ jobs:
     name: CI
     uses: Skycoder42/dart_test_tools/.github/workflows/dart.yml@main
     with:
-      platforms: '["linux", "macos"]'
       buildRunner: true
       extendedAnalyzerArgs: --linter test-import # Do not run the lib-export linter
       unitTestPaths: -P unit
@@ -21,7 +20,8 @@ jobs:
       integrationTestPaths: -P integration
       integrationTestSetup: >-
         {
-          "linux": "./tool/integration-test-setup.sh"
+          "linux": "./tool/integration-test-setup.sh",
+          "macos": "./tool/integration-test-setup.sh"
         }
   cd:
     name: CD
@@ -29,5 +29,4 @@ jobs:
       - ci
     uses: Skycoder42/dart_test_tools/.github/workflows/compile.yml@main
     with:
-      platforms: '["linux", "windows", "macos"]'
       buildRunner: true
