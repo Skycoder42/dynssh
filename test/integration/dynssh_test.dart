@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dynssh/src/cli/options.dart';
 import 'package:dynssh/src/config/config.dart';
+import 'package:dynssh/src/models/api_key_config.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:dynssh/src/server/http_server.dart';
 import 'package:http/http.dart' as http;
@@ -10,39 +12,75 @@ import 'package:riverpod/riverpod.dart';
 import 'package:test/test.dart';
 
 void main() {
-  setUpAll(() async {
-    Logger.root
-      ..level = Level.ALL
-      ..onRecord.listen(_printLogRecord);
-  });
+  const testFqdn = 'test.dynssh.skycoder42.de';
+  const testUnauthorizedFqdn = 'unauthorized.$testFqdn';
+  const testForbiddenFqdn = 'forbidden.$testFqdn';
+  const testApiKey = 'j8efu893pu8fsjifskjfo983u0f09ufe0suf093uf90uwu9eusfkdsf';
+  const testAuthHeader =
+      // ignore: lines_longer_than_80_chars
+      'Basic dGVzdC5keW5zc2guc2t5Y29kZXI0Mi5kZTpqOGVmdTg5M3B1OGZzamlmc2tqZm85ODN1MGYwOXVmZTBzdWYwOTN1ZjkwdXd1OWV1c2ZrZHNm';
+  const testForbiddenAuthHeader =
+      // ignore: lines_longer_than_80_chars
+      'Basic Zm9yYmlkZGVuLnRlc3QuZHluc3NoLnNreWNvZGVyNDIuZGU6ajhlZnU4OTNwdThmc2ppZnNramZvOTgzdTBmMDl1ZmUwc3VmMDkzdWY5MHV3dTlldXNma2RzZg==';
 
   late Directory testDir;
   late Options testOptions;
   late int port;
 
-  setUp(() async {
+  setUpAll(() async {
+    Logger.root
+      ..level = Level.ALL
+      ..onRecord.listen(_printLogRecord);
+
     testDir = await Directory.systemTemp.createTemp();
+
+    final apiKeyFile = File.fromUri(testDir.uri.resolve('api-keys.json'));
+    await apiKeyFile.writeAsString(
+      json.encode(
+        const ApiKeyConfig({
+          testFqdn: testApiKey,
+          testUnauthorizedFqdn: 'invalid API key',
+          testForbiddenFqdn: testApiKey,
+        }).toJson(),
+      ),
+    );
 
     testOptions = Options(
       host: InternetAddress.loopbackIPv4.address,
       port: 0,
-      apiKeyPath: testDir.uri.resolve('api-keys.json').toFilePath(),
-      sshDirectory: testDir.uri.resolve('ssh').toFilePath(),
+      apiKeyPath: apiKeyFile.path,
+      sshDirectory: '${Platform.environment['HOME']}/.ssh',
       logLevel: Level.ALL,
     );
 
     port = await _runDynssh(testOptions);
   });
 
-  Future<int> get({String? path, bool post = true}) async {
+  Future<int> sendUpdateRequest({
+    String? path,
+    bool post = true,
+    String? authHeader = testAuthHeader,
+    Map<String, String>? query,
+  }) async {
     final url = Uri(
       scheme: 'http',
       host: InternetAddress.loopbackIPv4.address,
       port: port,
       path: path ?? '/dynssh/update',
+      queryParameters: query ??
+          const <String, String>{
+            'fqdn': testFqdn,
+            'ipv4': '127.0.0.1',
+          },
     );
 
-    final response = post ? await http.post(url) : await http.get(url);
+    final headers = {
+      if (authHeader != null) HttpHeaders.authorizationHeader: authHeader
+    };
+
+    final response = post
+        ? await http.post(url, headers: headers)
+        : await http.get(url, headers: headers);
     return response.statusCode;
   }
 
@@ -51,15 +89,85 @@ void main() {
   });
 
   test('rejects unknown paths with 404', () async {
-    expect(get(path: '/invalid/service'), completion(HttpStatus.notFound));
+    expect(
+      sendUpdateRequest(path: '/invalid/service'),
+      completion(HttpStatus.notFound),
+    );
   });
 
-  test('rejects correct path with invalid method with 405', () async {
-    expect(get(post: false), completion(HttpStatus.methodNotAllowed));
+  test('rejects invalid method with 405', () async {
+    expect(
+      sendUpdateRequest(post: false),
+      completion(HttpStatus.methodNotAllowed),
+    );
   });
 
-  test('rejects correct path with missing credentials with 401', () async {
-    expect(get(), completion(HttpStatus.unauthorized));
+  test('rejects missing credentials with 401', () async {
+    expect(
+      sendUpdateRequest(authHeader: null),
+      completion(HttpStatus.unauthorized),
+    );
+  });
+
+  test('rejects missing fqdn with 401', () async {
+    expect(
+      sendUpdateRequest(query: const {}),
+      completion(HttpStatus.unauthorized),
+    );
+  });
+
+  test('rejects invalid fqdn with 401', () async {
+    expect(
+      sendUpdateRequest(query: const {'fqdn': 'example.com'}),
+      completion(HttpStatus.unauthorized),
+    );
+  });
+
+  test('rejects valid fqdn with invalid api key with 401', () async {
+    expect(
+      sendUpdateRequest(query: const {'fqdn': testUnauthorizedFqdn}),
+      completion(HttpStatus.unauthorized),
+    );
+  });
+
+  test('rejects query without ip address with 400', () async {
+    expect(
+      sendUpdateRequest(query: const {'fqdn': testFqdn}),
+      completion(HttpStatus.badRequest),
+    );
+  });
+
+  test('rejects query without both ip addresses with 400', () async {
+    expect(
+      sendUpdateRequest(
+        query: const {
+          'fqdn': testFqdn,
+          'ipv4': '127.0.0.1',
+          'ipv6': '::',
+        },
+      ),
+      completion(HttpStatus.badRequest),
+    );
+  });
+
+  test('rejects update with host key mismatch with 403', () async {
+    expect(
+      sendUpdateRequest(
+        query: {
+          'fqdn': testForbiddenFqdn,
+          'ipv4': '127.0.0.1',
+        },
+        authHeader: testForbiddenAuthHeader,
+      ),
+      completion(HttpStatus.forbidden),
+    );
+  });
+
+  test('accepts update with correct data with 202', () async {
+    expect(
+      sendUpdateRequest(),
+      completion(HttpStatus.accepted),
+    );
   });
 }
 

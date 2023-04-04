@@ -25,8 +25,8 @@ class SshKeyscan {
     final keyscanLines = _processAdapter.streamLines(
       'ssh-keyscan',
       [
-        host,
         if (port != null) ...['-p', port.toString()],
+        host,
       ],
     );
     return _sshKnownHostsParser.getHostKeysFromLines(keyscanLines, host, port);

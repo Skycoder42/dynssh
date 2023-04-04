@@ -55,7 +55,7 @@ class SshKnownHostsParser {
         continue;
       }
 
-      hostMap[lineParts[2]] = lineParts.skip(2).join(' ');
+      hostMap[lineParts[1]] = lineParts.skip(2).join(' ');
     }
 
     return hostMap;
