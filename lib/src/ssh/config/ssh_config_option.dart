@@ -21,7 +21,7 @@ class SshConfigOption extends SshConfigEntry {
     buffer.write(_keyword);
     for (final argument in arguments) {
       buffer.write(' ');
-      if (argument.contains(RegExp(r'\w'))) {
+      if (argument.contains(RegExp(r'\s'))) {
         buffer
           ..write('"')
           ..write(argument)

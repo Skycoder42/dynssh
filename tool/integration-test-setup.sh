@@ -2,7 +2,7 @@
 set -eo pipefail
 
 echo ::group::Setup SSH
-sudo service ssh start
+# sudo service ssh start
 
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519

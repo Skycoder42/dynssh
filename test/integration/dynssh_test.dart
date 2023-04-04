@@ -56,6 +56,12 @@ void main() {
     port = await _runDynssh(testOptions);
   });
 
+  setUp(() {
+    Logger.root
+      ..clearListeners()
+      ..onRecord.listen(_printLogRecord);
+  });
+
   Future<int> sendUpdateRequest({
     String? path,
     bool post = true,
@@ -164,9 +170,24 @@ void main() {
   });
 
   test('accepts update with correct data with 202', () async {
-    expect(
+    await expectLater(
       sendUpdateRequest(),
       completion(HttpStatus.accepted),
+    );
+
+    final sshConfig = File('${Platform.environment['HOME']}/.ssh/config');
+    expect(sshConfig.existsSync(), isTrue);
+    expect(
+      sshConfig.readAsString(),
+      completion('''
+Host test.dynssh.skycoder42.de
+    HostName 127.0.0.1
+    User vscode
+    IdentityFile ~/.ssh/id_ed25519
+
+Host forbidden.test.dynssh.skycoder42.de
+    HostName aur.archlinux.org
+'''),
     );
   });
 }
