@@ -182,7 +182,7 @@ void main() {
       completion('''
 Host test.dynssh.skycoder42.de
     HostName 127.0.0.1
-    User vscode
+    User ${Platform.environment['USER']}
     IdentityFile ~/.ssh/id_ed25519
 
 Host forbidden.test.dynssh.skycoder42.de
