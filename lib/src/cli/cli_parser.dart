@@ -1,22 +1,30 @@
+// coverage:ignore-file
+
 import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../adapter/posix_adapter.dart';
 import 'options.dart';
 
 // coverage:ignore-start
 final cliParserProvider = Provider(
-  (ref) => CliParser(),
+  (ref) => CliParser(
+    ref.watch(posixAdapterProvider),
+  ),
 );
 // coverage:ignore-end
 
 class CliParser {
+  final PosixAdapter _posixAdapter;
   final _logger = Logger('$CliParser');
 
+  CliParser(this._posixAdapter);
+
   Options parse(List<String> arguments) {
-    final argParser = Options.buildArgParser();
+    final argParser = Options.buildArgParser(_posixAdapter);
 
     try {
       final argResults = argParser.parse(arguments);

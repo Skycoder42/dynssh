@@ -1,4 +1,4 @@
-name: Continuous integration
+name: Docker image update
 
 on:
   workflow_dispatch:
@@ -7,9 +7,11 @@ on:
 
 jobs:
   ci:
+    name: CI
     uses: ./.github/workflows/ci_base.yaml
 
   docker:
+    name: Docker
     needs:
       - ci
     uses: ./.github/workflows/docker_base.yaml

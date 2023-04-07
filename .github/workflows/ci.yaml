@@ -8,6 +8,7 @@ on:
 
 jobs:
   ci:
+    name: CI
     uses: ./.github/workflows/ci_base.yaml
   cd:
     name: CD
@@ -18,6 +19,7 @@ jobs:
       buildRunner: true
 
   docker:
+    name: Docker
     needs:
       - cd
     if: needs.cd.outputs.releaseCreated == 'true'

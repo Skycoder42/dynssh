@@ -1,9 +1,12 @@
+// coverage:ignore-file
+
 import 'dart:io';
 
 import 'package:build_cli_annotations/build_cli_annotations.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
-import 'package:posix/posix.dart' as posix;
+
+import '../adapter/posix_adapter.dart';
 
 part 'options.g.dart';
 
@@ -88,24 +91,23 @@ class Options {
     ..config('sshConfigDir: $sshDirectory')
     ..config('logLevel: $logLevel');
 
-  static ArgParser buildArgParser() => _$populateOptionsParser(
+  static ArgParser buildArgParser(PosixAdapter posixAdapter) =>
+      _$populateOptionsParser(
         ArgParser(
           allowTrailingOptions: false,
           usageLineLength: stdout.hasTerminal ? stdout.terminalColumns : null,
         ),
         hostDefaultOverride: InternetAddress.anyIPv4.address,
-        apiKeyPathDefaultOverride: _apiKeyPathDefault,
-        sshDirectoryDefaultOverride: _sshDirectoryDefault,
+        apiKeyPathDefaultOverride: _apiKeyPathDefault(posixAdapter),
+        sshDirectoryDefaultOverride: _sshDirectoryDefault(posixAdapter),
       );
 
   static Options parseOptions(ArgResults argResults) =>
       _$parseOptionsResult(argResults);
 
-  static bool get _isRoot => posix.geteuid() == 0;
-
-  static String get _apiKeyPathDefault {
+  static String _apiKeyPathDefault(PosixAdapter posixAdapter) {
     const pathSuffix = 'dynssh/api-keys.json';
-    if (_isRoot) {
+    if (posixAdapter.isRoot) {
       return '/etc/$pathSuffix';
     } else {
       final homePath = Platform.environment['HOME'];
@@ -120,9 +122,9 @@ class Options {
     }
   }
 
-  static String get _sshDirectoryDefault {
+  static String _sshDirectoryDefault(PosixAdapter posixAdapter) {
     const globalSshDir = '/etc/ssh';
-    if (_isRoot) {
+    if (posixAdapter.isRoot) {
       return globalSshDir;
     } else {
       final homePath = Platform.environment['HOME'];
