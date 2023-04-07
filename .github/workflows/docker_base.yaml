@@ -1,0 +1,22 @@
+on:
+  workflow_call:
+    inputs:
+      dockerImageTags:
+        type: string
+        required: true
+    secrets:
+      dockerHubUsername:
+        required: true
+      dockerHubToken:
+        required: true
+jobs:
+  docker:
+    name: Docker
+    uses: Skycoder42/dart_test_tools/.github/workflows/docker.yml@main
+    with:
+      dockerImageName: skycoder42/dynssh
+      dockerImageTags: ${{ inputs.dockerImageTags }}
+      dockerPlatforms: linux/amd64,linux/arm64,linux/arm/v7
+    secrets:
+      dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -1,0 +1,20 @@
+name: Continuous integration
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 5 * * 4"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci_base.yaml
+
+  docker:
+    needs:
+      - ci
+    uses: ./.github/workflows/docker_base.yaml
+    with:
+      dockerImageTags: latest
+    secrets:
+      dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}
