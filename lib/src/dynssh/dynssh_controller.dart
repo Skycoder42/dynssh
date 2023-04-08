@@ -22,13 +22,13 @@ class DynsshController {
   static const _portKey = 'Port';
 
   final SshConfigParser _sshConfigParser;
-  final SshKnownHostsParser _knownHostsParser;
+  final SshKnownHostsParser _sshKnownHostsParser;
   final SshKeyscan _sshKeyscan;
   final _logger = Logger('$DynsshController');
 
   DynsshController(
     this._sshConfigParser,
-    this._knownHostsParser,
+    this._sshKnownHostsParser,
     this._sshKeyscan,
   );
 
@@ -49,7 +49,7 @@ class DynsshController {
         int.tryParse(hostConfig[_portKey]?.single ?? '', radix: 10);
     final hostLog = _hostLog(hostAddress, hostPort);
 
-    final knownHostKeys = await _knownHostsParser.getHostKeys(
+    final knownHostKeys = await _sshKnownHostsParser.getHostKeys(
       hostAddress,
       hostPort,
     );
@@ -83,7 +83,7 @@ class DynsshController {
 
     hostConfig[_hostNameKey] = [hostUpdate.ipAddress];
     await _sshConfigParser.update(sshConfig);
-    await _knownHostsParser.replaceHost(
+    await _sshKnownHostsParser.replaceHost(
       oldHost: hostAddress,
       newHost: hostUpdate.ipAddress,
       oldPort: hostPort,
