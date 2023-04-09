@@ -11,7 +11,7 @@ import 'http_server.dart';
 // coverage:ignore-start
 final dynsshHandlerProvider = HttpHandlerProvider(
   name: '$DynsshHandler',
-  canHandle: (url) => url.path == '/dynssh/update',
+  canHandle: DynsshHandler.canHandle,
   (ref) => DynsshHandler(
     ref.watch(configProvider),
     ref.watch(dynsshControllerProvider),
@@ -29,8 +29,12 @@ class DynsshHandler implements HttpHandler {
     this._dynsshController,
   );
 
+  static bool canHandle(Uri url) => url.path == '/dynssh/update';
+
   @override
   Future<bool> call(HttpRequest request) async {
+    assert(canHandle(request.uri));
+
     if (request.method != 'POST') {
       request.response.statusCode = HttpStatus.methodNotAllowed;
       request.response.writeln('This endpoint only accepts POST-Requests');
