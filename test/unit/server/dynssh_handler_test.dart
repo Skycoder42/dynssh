@@ -165,7 +165,7 @@ void main() {
       );
 
       testData<Tuple3<String?, String?, int>>(
-        'rejects requests with invalid API-credentials',
+        'runs host update with given parameters, if valid',
         const [],
         (fixture) async {
           when(() => mockConfig.findApiKey(testFqdn))
