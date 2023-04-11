@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/config/config.dart';
 import 'package:dynssh/src/dynssh/dynssh_controller.dart';
+import 'package:dynssh/src/models/host_update.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -39,6 +40,12 @@ class FakeHttpRequest extends Fake implements HttpRequest {
 }
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(
+      const HostUpdate.ipv4(fqdn: 'fqdn', ipAddress: 'ipAddress'),
+    );
+  });
+
   group('$DynsshHandler', () {
     final mockConfig = MockConfig();
     final mockDynsshController = MockDynsshController();
@@ -79,6 +86,8 @@ void main() {
       const testInvalidFqdn = 'invalid.example.com';
       const testApiKey = 'test-api-key';
       const testAuthHeader = 'Basic dGVzdC5leGFtcGxlLmNvbTp0ZXN0LWFwaS1rZXk=';
+      const testIpv4 = '12.23.34.45';
+      const testIpv6 = '::';
 
       testData<Tuple2<String, int>>(
         'disallows all methods except POST',
@@ -164,12 +173,29 @@ void main() {
         },
       );
 
-      testData<Tuple3<String?, String?, int>>(
+      testData<Tuple4<String?, String?, HostUpdate?, int>>(
         'runs host update with given parameters, if valid',
-        const [],
+        const [
+          Tuple4(null, null, null, HttpStatus.badRequest),
+          Tuple4(
+            null,
+            testIpv6,
+            HostUpdate.ipv6(fqdn: testFqdn, ipAddress: testIpv6),
+            HttpStatus.forbidden,
+          ),
+          Tuple4(
+            testIpv4,
+            null,
+            HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
+            HttpStatus.forbidden,
+          ),
+          Tuple4(testIpv4, testIpv6, null, HttpStatus.badRequest),
+        ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testFqdn))
               .thenReturnAsync(testApiKey);
+          when(() => mockDynsshController.updateHost(any()))
+              .thenReturnAsync(false);
 
           final request = FakeHttpRequest(
             'POST',
@@ -177,12 +203,13 @@ void main() {
               '',
               '/dynssh/update',
               <String, String>{
-                if (fixture.item1 != null) 'fqdn': fixture.item1!,
+                'fqdn': testFqdn,
+                if (fixture.item1 != null) 'ipv4': fixture.item1!,
+                if (fixture.item2 != null) 'ipv6': fixture.item2!,
               },
             ),
             FakeHttpHeaders({
-              if (fixture.item2 != null)
-                HttpHeaders.authorizationHeader: fixture.item2!,
+              HttpHeaders.authorizationHeader: testAuthHeader,
             }),
             mockHttpResponse,
           );
@@ -192,14 +219,58 @@ void main() {
           expect(result, isTrue);
 
           verifyInOrder([
-            if (fixture.item1 != null)
-              () => mockConfig.findApiKey(fixture.item1!),
-            () => mockHttpResponse.statusCode = fixture.item3,
+            () => mockConfig.findApiKey(testFqdn),
+            if (fixture.item3 != null)
+              () => mockDynsshController.updateHost(fixture.item3!),
+            () => mockHttpResponse.statusCode = fixture.item4,
             () => mockHttpResponse.close(),
           ]);
           if (fixture.item1 == null) {
-            verifyNever(() => mockConfig.findApiKey(any()));
+            verifyNever(() => mockDynsshController.updateHost(any()));
           }
+        },
+      );
+
+      testData<Tuple2<bool, int>>(
+        'sets result status based on host update result',
+        const [
+          Tuple2(false, HttpStatus.forbidden),
+          Tuple2(true, HttpStatus.accepted),
+        ],
+        (fixture) async {
+          when(() => mockConfig.findApiKey(testFqdn))
+              .thenReturnAsync(testApiKey);
+          when(() => mockDynsshController.updateHost(any()))
+              .thenReturnAsync(fixture.item1);
+
+          final request = FakeHttpRequest(
+            'POST',
+            Uri.https(
+              '',
+              '/dynssh/update',
+              <String, String>{
+                'fqdn': testFqdn,
+                'ipv4': testIpv4,
+              },
+            ),
+            FakeHttpHeaders({
+              HttpHeaders.authorizationHeader: testAuthHeader,
+            }),
+            mockHttpResponse,
+          );
+
+          final result = await sut(request);
+
+          expect(result, isTrue);
+
+          verifyInOrder([
+            () => mockConfig.findApiKey(testFqdn),
+            () => mockDynsshController.updateHost(
+                  const HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
+                ),
+            () => mockHttpResponse.statusCode = fixture.item2,
+            () => mockHttpResponse.close(),
+          ]);
         },
       );
     });
