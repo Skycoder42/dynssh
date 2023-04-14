@@ -1,5 +1,6 @@
 // ignore_for_file: discarded_futures
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -177,8 +178,13 @@ void main() {
         await sut.start(di);
       });
 
-      test('returns 404 if no handler can handle the request', () {
-        expect(
+      tearDown(() {
+        verifyNoMoreInteractions(mockHandler1);
+        verifyNoMoreInteractions(mockHandler2);
+      });
+
+      test('returns 404 if no handler can handle the request', () async {
+        await expectLater(
           get(testBaseUrl()),
           completion(
             isA<Response>().having(
@@ -188,7 +194,96 @@ void main() {
             ),
           ),
         );
+
+        verifyInOrder([
+          () => mockHandler1.canHandle(Uri(path: '/')),
+          () => mockHandler2.canHandle(Uri(path: '/')),
+        ]);
+      });
+
+      test('returns 404 if no handler accepted the request', () async {
+        when(() => mockHandler1.canHandle(any())).thenReturn(true);
+        when(() => mockHandler2.canHandle(any())).thenReturn(true);
+
+        when(() => mockHandler1.call(any())).thenReturnAsync(false);
+        when(() => mockHandler2.call(any())).thenReturnAsync(false);
+
+        await expectLater(
+          get(testBaseUrl()),
+          completion(
+            isA<Response>().having(
+              (m) => m.statusCode,
+              'statusCode',
+              HttpStatus.notFound,
+            ),
+          ),
+        );
+
+        verifyInOrder([
+          () => mockHandler1.canHandle(Uri(path: '/')),
+          () => mockHandler1.call(any()),
+          () => mockHandler2.canHandle(Uri(path: '/')),
+          () => mockHandler2.call(any()),
+        ]);
+      });
+
+      test('only applies first matching handler', () async {
+        when(() => mockHandler1.canHandle(any())).thenReturn(true);
+        when(() => mockHandler2.canHandle(any())).thenReturn(true);
+
+        when(() => mockHandler2.call(any())).thenReturnAsync(true);
+        mockResponse(mockHandler1, (request, response) async {
+          response.statusCode = HttpStatus.ok;
+          await response.close();
+          return true;
+        });
+
+        await expectLater(
+          get(testBaseUrl()),
+          completion(
+            isA<Response>().having(
+              (m) => m.statusCode,
+              'statusCode',
+              HttpStatus.ok,
+            ),
+          ),
+        );
+
+        verifyInOrder([
+          () => mockHandler1.canHandle(Uri(path: '/')),
+          () => mockHandler1.call(any()),
+        ]);
+      });
+
+      test('returns 500 if handler throws', () async {
+        when(() => mockHandler1.canHandle(any())).thenReturn(true);
+        when(() => mockHandler1.call(any())).thenThrow(Exception('error'));
+
+        await expectLater(
+          get(testBaseUrl()),
+          completion(
+            isA<Response>().having(
+              (m) => m.statusCode,
+              'statusCode',
+              HttpStatus.internalServerError,
+            ),
+          ),
+        );
+
+        verifyInOrder([
+          () => mockHandler1.canHandle(Uri(path: '/')),
+          () => mockHandler1.call(any()),
+        ]);
       });
     });
   });
 }
+
+void mockResponse(
+  MockHttpHandler handler,
+  FutureOr<bool> Function(HttpRequest request, HttpResponse response) handle,
+) =>
+    when(() => handler.call(any())).thenAnswer((i) async {
+      final request = i.positionalArguments.first as HttpRequest;
+      return await handle(request, request.response);
+    });
