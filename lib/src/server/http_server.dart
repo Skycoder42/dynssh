@@ -30,7 +30,7 @@ class HttpHandlerProvider<T extends HttpHandler> extends Provider<T> {
   final bool Function(Uri url) canHandle;
 
   HttpHandlerProvider(
-    super.createFn, {
+    super._createFn, {
     required this.canHandle,
     required String super.name,
     super.dependencies,
