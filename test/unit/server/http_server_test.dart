@@ -114,26 +114,34 @@ void main() {
         },
       );
 
-      test('starts http server on specific IP', () async {
-        when(() => mockConfig.host).thenReturn(InternetAddress('127.1.2.3'));
-
-        await sut.start(di);
-
-        expect(
-          get(testBaseUrl()),
-          throwsA(isA<SocketException>()),
-        );
-        expect(
-          get(testBaseUrl().replace(host: '127.1.2.3')),
-          completion(
-            isA<Response>().having(
-              (m) => m.statusCode,
-              'statusCode',
-              HttpStatus.notFound,
-            ),
+      test(
+        'starts http server on specific IP',
+        onPlatform: const {
+          'macos': Skip(
+            'User other IPs then 127.0.0.1 is not supported on macos.',
           ),
-        );
-      });
+        },
+        () async {
+          when(() => mockConfig.host).thenReturn(InternetAddress('127.1.2.3'));
+
+          await sut.start(di);
+
+          expect(
+            get(testBaseUrl()),
+            throwsA(isA<SocketException>()),
+          );
+          expect(
+            get(testBaseUrl().replace(host: '127.1.2.3')),
+            completion(
+              isA<Response>().having(
+                (m) => m.statusCode,
+                'statusCode',
+                HttpStatus.notFound,
+              ),
+            ),
+          );
+        },
+      );
     });
 
     group('stop', () {
