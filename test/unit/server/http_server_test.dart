@@ -117,7 +117,7 @@ void main() {
       test(
         'starts http server on specific IP',
         onPlatform: const {
-          'macos': Skip(
+          'mac-os': Skip(
             'User other IPs then 127.0.0.1 is not supported on macos.',
           ),
         },
