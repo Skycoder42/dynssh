@@ -12,7 +12,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:test/test.dart';
 
-abstract class TestHttpHandler implements HttpHandler {
+abstract interface class TestHttpHandler implements HttpHandler {
   bool canHandle(Uri url);
 }
 

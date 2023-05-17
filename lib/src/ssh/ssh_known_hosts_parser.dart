@@ -19,22 +19,6 @@ class SshKnownHostsParser {
 
   SshKnownHostsParser(this._config);
 
-  Future<Map<String, String>> getHostKeys(String host, [int? port]) async {
-    final knownHostsFile = _knownHostsFile();
-    if (!knownHostsFile.existsSync()) {
-      _logger.warning(
-        'SSH known_hosts file does not exist (path: ${knownHostsFile.path})',
-      );
-      return const {};
-    }
-
-    final hostLines = knownHostsFile
-        .openRead()
-        .transform(utf8.decoder)
-        .transform(const LineSplitter());
-    return getHostKeysFromLines(hostLines, host, port);
-  }
-
   Future<Map<String, String>> getHostKeysFromLines(
     Stream<String> hostLines,
     String host, [
@@ -59,6 +43,22 @@ class SshKnownHostsParser {
     }
 
     return hostMap;
+  }
+
+  Future<Map<String, String>> getHostKeys(String host, [int? port]) async {
+    final knownHostsFile = _knownHostsFile();
+    if (!knownHostsFile.existsSync()) {
+      _logger.warning(
+        'SSH known_hosts file does not exist (path: ${knownHostsFile.path})',
+      );
+      return const {};
+    }
+
+    final hostLines = knownHostsFile
+        .openRead()
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    return getHostKeysFromLines(hostLines, host, port);
   }
 
   Future<void> replaceHost({

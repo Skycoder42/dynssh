@@ -18,9 +18,7 @@ final httpServerProvider = Provider<HttpServer>(
 );
 // coverage:ignore-end
 
-abstract class HttpHandler {
-  HttpHandler._();
-
+abstract interface class HttpHandler {
   Future<bool> call(io.HttpRequest request);
 }
 
@@ -142,6 +140,7 @@ class HttpServer {
     await response.close();
   }
 
+  // coverage:ignore-start
   Future<void> _handleListenError(Object error, StackTrace stackTrace) async {
     _logger.shout(
       'HTTP-Server bind error (${error.runtimeType}):',
@@ -150,6 +149,7 @@ class HttpServer {
     );
     await stop(force: true);
   }
+  // coverage:ignore-end
 
   String _stringifyHttpRequest(io.HttpRequest request) =>
       '${request.method} ${request.uri}';

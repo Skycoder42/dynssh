@@ -68,26 +68,18 @@ class DynsshHandler implements HttpHandler {
     }
 
     final HostUpdate hostUpdate;
-    if (fqdn == null || (ipv4 == null && ipv6 == null)) {
-      request.response.statusCode = HttpStatus.badRequest;
-      request.response
-        ..writeln('Invalid Query!')
-        ..writeln('"fqdn" and one of "ipv4" or "ipv6" must be provided!');
-      await request.response.close();
-      return true;
-    } else if (ipv4 != null && ipv6 != null) {
-      request.response.statusCode = HttpStatus.badRequest;
-      request.response
-        ..writeln('Invalid Query!')
-        ..writeln('Only one of "ipv4" or "ipv6" can be used!');
-      await request.response.close();
-      return true;
-    } else if (ipv6 != null) {
-      hostUpdate = HostUpdate.ipv6(fqdn: fqdn, ipAddress: ipv6);
-    } else if (ipv4 != null) {
-      hostUpdate = HostUpdate.ipv4(fqdn: fqdn, ipAddress: ipv4);
-    } else {
-      throw StateError('Unreachable code reached!');
+    switch ((fqdn, ipv4, ipv6)) {
+      case (final String fqdn, final String ipv4, null):
+        hostUpdate = HostUpdate.ipv4(fqdn: fqdn, ipAddress: ipv4);
+      case (final String fqdn, null, final String ipv6):
+        hostUpdate = HostUpdate.ipv6(fqdn: fqdn, ipAddress: ipv6);
+      default:
+        request.response.statusCode = HttpStatus.badRequest;
+        request.response
+          ..writeln('Invalid Query!')
+          ..writeln('"fqdn" and one of "ipv4" or "ipv6" must be provided!');
+        await request.response.close();
+        return true;
     }
 
     _logger.finest('Request validation succeeded. Start host update');

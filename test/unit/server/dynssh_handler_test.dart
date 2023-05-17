@@ -9,7 +9,6 @@ import 'package:dynssh/src/models/host_update.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 
 class MockConfig extends Mock implements Config {}
 
@@ -64,19 +63,19 @@ void main() {
       sut = DynsshHandler(mockConfig, mockDynsshController);
     });
 
-    testData<Tuple2<String, bool>>(
+    testData<(String, bool)>(
       'canHandle only allows specific path',
       const [
-        Tuple2('/', false),
-        Tuple2('/stuff', false),
-        Tuple2('/dynssh', false),
-        Tuple2('/dynssh/stuff', false),
-        Tuple2('/dynssh/update', true),
-        Tuple2('/dynssh/update/stuff', false),
+        ('/', false),
+        ('/stuff', false),
+        ('/dynssh', false),
+        ('/dynssh/stuff', false),
+        ('/dynssh/update', true),
+        ('/dynssh/update/stuff', false),
       ],
       (fixture) {
-        final testUrl = Uri.https('test.de', fixture.item1);
-        expect(DynsshHandler.canHandle(testUrl), fixture.item2);
+        final testUrl = Uri.https('test.de', fixture.$1);
+        expect(DynsshHandler.canHandle(testUrl), fixture.$2);
       },
     );
 
@@ -89,19 +88,19 @@ void main() {
       const testIpv4 = '12.23.34.45';
       const testIpv6 = '::';
 
-      testData<Tuple2<String, int>>(
+      testData<(String, int)>(
         'disallows all methods except POST',
         const [
-          Tuple2('GET', HttpStatus.methodNotAllowed),
-          Tuple2('PUT', HttpStatus.methodNotAllowed),
-          Tuple2('DELETE', HttpStatus.methodNotAllowed),
-          Tuple2('PATCH', HttpStatus.methodNotAllowed),
-          Tuple2('HEAD', HttpStatus.methodNotAllowed),
-          Tuple2('POST', HttpStatus.unauthorized),
+          ('GET', HttpStatus.methodNotAllowed),
+          ('PUT', HttpStatus.methodNotAllowed),
+          ('DELETE', HttpStatus.methodNotAllowed),
+          ('PATCH', HttpStatus.methodNotAllowed),
+          ('HEAD', HttpStatus.methodNotAllowed),
+          ('POST', HttpStatus.unauthorized),
         ],
         (fixture) async {
           final request = FakeHttpRequest(
-            fixture.item1,
+            fixture.$1,
             Uri.https('', '/dynssh/update'),
             FakeHttpHeaders(const {}),
             mockHttpResponse,
@@ -112,30 +111,30 @@ void main() {
           expect(result, isTrue);
 
           verifyInOrder([
-            () => mockHttpResponse.statusCode = fixture.item2,
+            () => mockHttpResponse.statusCode = fixture.$2,
             () => mockHttpResponse.close(),
           ]);
         },
       );
 
-      testData<Tuple3<String?, String?, int>>(
+      testData<(String?, String?, int)>(
         'rejects requests with invalid API-credentials',
         const [
-          Tuple3(null, null, HttpStatus.unauthorized),
-          Tuple3(testFqdn, null, HttpStatus.unauthorized),
-          Tuple3(null, testAuthHeader, HttpStatus.unauthorized),
-          Tuple3(testFqdn, 'invalid-auth-header', HttpStatus.unauthorized),
-          Tuple3(
+          (null, null, HttpStatus.unauthorized),
+          (testFqdn, null, HttpStatus.unauthorized),
+          (null, testAuthHeader, HttpStatus.unauthorized),
+          (testFqdn, 'invalid-auth-header', HttpStatus.unauthorized),
+          (
             testMissingFqdn,
             testAuthHeader,
             HttpStatus.unauthorized,
           ),
-          Tuple3(
+          (
             testInvalidFqdn,
             testAuthHeader,
             HttpStatus.unauthorized,
           ),
-          Tuple3(testFqdn, testAuthHeader, HttpStatus.badRequest),
+          (testFqdn, testAuthHeader, HttpStatus.badRequest),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testFqdn))
@@ -147,12 +146,12 @@ void main() {
               '',
               '/dynssh/update',
               <String, String>{
-                if (fixture.item1 != null) 'fqdn': fixture.item1!,
+                if (fixture.$1 != null) 'fqdn': fixture.$1!,
               },
             ),
             FakeHttpHeaders({
-              if (fixture.item2 != null)
-                HttpHeaders.authorizationHeader: fixture.item2!,
+              if (fixture.$2 != null)
+                HttpHeaders.authorizationHeader: fixture.$2!,
             }),
             mockHttpResponse,
           );
@@ -162,34 +161,33 @@ void main() {
           expect(result, isTrue);
 
           verifyInOrder([
-            if (fixture.item1 != null)
-              () => mockConfig.findApiKey(fixture.item1!),
-            () => mockHttpResponse.statusCode = fixture.item3,
+            if (fixture.$1 != null) () => mockConfig.findApiKey(fixture.$1!),
+            () => mockHttpResponse.statusCode = fixture.$3,
             () => mockHttpResponse.close(),
           ]);
-          if (fixture.item1 == null) {
+          if (fixture.$1 == null) {
             verifyNever(() => mockConfig.findApiKey(any()));
           }
         },
       );
 
-      testData<Tuple4<String?, String?, HostUpdate?, int>>(
+      testData<(String?, String?, HostUpdate?, int)>(
         'runs host update with given parameters, if valid',
         const [
-          Tuple4(null, null, null, HttpStatus.badRequest),
-          Tuple4(
+          (null, null, null, HttpStatus.badRequest),
+          (
             null,
             testIpv6,
             HostUpdate.ipv6(fqdn: testFqdn, ipAddress: testIpv6),
             HttpStatus.forbidden,
           ),
-          Tuple4(
+          (
             testIpv4,
             null,
             HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
             HttpStatus.forbidden,
           ),
-          Tuple4(testIpv4, testIpv6, null, HttpStatus.badRequest),
+          (testIpv4, testIpv6, null, HttpStatus.badRequest),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testFqdn))
@@ -204,8 +202,8 @@ void main() {
               '/dynssh/update',
               <String, String>{
                 'fqdn': testFqdn,
-                if (fixture.item1 != null) 'ipv4': fixture.item1!,
-                if (fixture.item2 != null) 'ipv6': fixture.item2!,
+                if (fixture.$1 != null) 'ipv4': fixture.$1!,
+                if (fixture.$2 != null) 'ipv6': fixture.$2!,
               },
             ),
             FakeHttpHeaders({
@@ -220,28 +218,28 @@ void main() {
 
           verifyInOrder([
             () => mockConfig.findApiKey(testFqdn),
-            if (fixture.item3 != null)
-              () => mockDynsshController.updateHost(fixture.item3!),
-            () => mockHttpResponse.statusCode = fixture.item4,
+            if (fixture.$3 != null)
+              () => mockDynsshController.updateHost(fixture.$3!),
+            () => mockHttpResponse.statusCode = fixture.$4,
             () => mockHttpResponse.close(),
           ]);
-          if (fixture.item1 == null) {
+          if (fixture.$1 == null) {
             verifyNever(() => mockDynsshController.updateHost(any()));
           }
         },
       );
 
-      testData<Tuple2<bool, int>>(
+      testData<(bool, int)>(
         'sets result status based on host update result',
         const [
-          Tuple2(false, HttpStatus.forbidden),
-          Tuple2(true, HttpStatus.accepted),
+          (false, HttpStatus.forbidden),
+          (true, HttpStatus.accepted),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testFqdn))
               .thenReturnAsync(testApiKey);
           when(() => mockDynsshController.updateHost(any()))
-              .thenReturnAsync(fixture.item1);
+              .thenReturnAsync(fixture.$1);
 
           final request = FakeHttpRequest(
             'POST',
@@ -268,7 +266,7 @@ void main() {
             () => mockDynsshController.updateHost(
                   const HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
                 ),
-            () => mockHttpResponse.statusCode = fixture.item2,
+            () => mockHttpResponse.statusCode = fixture.$2,
             () => mockHttpResponse.close(),
           ]);
         },

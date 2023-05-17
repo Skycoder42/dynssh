@@ -2,7 +2,7 @@ import 'ssh_config_comment.dart';
 import 'ssh_config_entry.dart';
 import 'ssh_config_option.dart';
 
-abstract class SshConfigSection {
+abstract interface class SshConfigSection {
   List<SshConfigEntry> get entries; // TODO make private?
 
   Iterable<String> writeSection();
