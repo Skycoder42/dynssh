@@ -1,8 +1,11 @@
 on:
   workflow_call:
     inputs:
-      dockerImageTags:
+      version:
         type: string
+        required: true
+      latestOnly:
+        type: boolean
         required: true
     secrets:
       dockerHubUsername:
@@ -14,8 +17,9 @@ jobs:
     name: Docker
     uses: Skycoder42/dart_test_tools/.github/workflows/docker.yml@main
     with:
-      dockerImageName: skycoder42/dynssh
-      dockerImageTags: ${{ inputs.dockerImageTags }}
+      imageName: skycoder42/dynssh
+      version: ${{ inputs.version }}
+      latestOnly: ${{ inputs.latestOnly }}
       dockerPlatforms: linux/amd64,linux/arm64,linux/arm/v7
     secrets:
       dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}

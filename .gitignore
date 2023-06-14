@@ -24,4 +24,6 @@ doc/api/
 *.freezed.dart
 *.g.dart
 
+# Others
 *.log
+coverage/

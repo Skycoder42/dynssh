@@ -10,13 +10,28 @@ jobs:
     name: CI
     uses: ./.github/workflows/ci_base.yaml
 
+  get_version:
+    name: Get Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - id: version
+        name: Get latest released version
+        run: |
+          set -eo pipefail
+          version=$(yq '.version' pubspec.yaml)
+          echo "version=$version" >> $GITHUB_OUTPUT
+
   docker:
     name: Docker
     needs:
       - ci
+      - get_version
     uses: ./.github/workflows/docker_base.yaml
     with:
-      dockerImageTags: latest
+      version: ${{ needs.cd.get_version.version }}
+      latestOnly: true
     secrets:
       dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}
