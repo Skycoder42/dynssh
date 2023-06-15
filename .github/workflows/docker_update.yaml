@@ -2,26 +2,16 @@ name: Docker image update
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "25 5 * * 4"
+    inputs:
+      version:
+        type: string
+        required: true
+        description: The version to be published. Should match the branch
 
 jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci_base.yaml
-
-  get_version:
-    name: Get Version
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - id: version
-        name: Get latest released version
-        run: |
-          set -eo pipefail
-          version=$(yq '.version' pubspec.yaml)
-          echo "version=$version" >> $GITHUB_OUTPUT
 
   docker:
     name: Docker
@@ -30,7 +20,7 @@ jobs:
       - get_version
     uses: ./.github/workflows/docker_base.yaml
     with:
-      version: ${{ needs.cd.get_version.version }}
+      version: ${{ inputs.version }}
       latestOnly: true
     secrets:
       dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
