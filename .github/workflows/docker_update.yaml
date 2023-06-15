@@ -6,18 +6,19 @@ on:
       version:
         type: string
         required: true
-        description: The version to be published. Should match the branch
+        description: The version to be published. Must match the branch
 
 jobs:
   ci:
     name: CI
+    if: github.ref == format('refs/tags/v{0}', inputs.version)
     uses: ./.github/workflows/ci_base.yaml
 
   docker:
     name: Docker
     needs:
       - ci
-      - get_version
+    if: github.ref == format('refs/tags/v{0}', inputs.version)
     uses: ./.github/workflows/docker_base.yaml
     with:
       version: ${{ inputs.version }}

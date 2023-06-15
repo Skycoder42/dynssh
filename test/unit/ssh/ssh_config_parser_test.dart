@@ -58,7 +58,10 @@ void main() {
       testData<(String, SshConfig)>(
         'correctly parses ssh config',
         [
-          ('', SshConfig(SshConfigGlobals([]), [])),
+          (
+            '',
+            SshConfig(SshConfigGlobals([]), []),
+          ),
           (
             'Key',
             SshConfig(SshConfigGlobals([SshConfigOption('Key', [])]), [])
@@ -70,6 +73,9 @@ Key1 Value11 Value12
 Key3 Value3
 
 # Key 4 Value 4
+Key5 Value51 # Value52
+Host
+Key6 "Value 61"   Value  62
 ''',
             SshConfig(
               SshConfigGlobals([
@@ -78,9 +84,59 @@ Key3 Value3
                 SshConfigOption('key3', ['Value3']),
                 SshConfigComment.empty(),
                 SshConfigComment('Key 4 Value 4'),
+                SshConfigOption('key5', ['Value51', '#', 'Value52']),
+                SshConfigOption('Host', []),
+                SshConfigOption('key6', ['Value 61', 'Value', '62']),
               ]),
               [],
             )
+          ),
+          (
+            '''
+Key1 Value1
+
+Host host1.example.com
+Key1 Value1
+Host host2 host3
+Key2 Value3
+#Host host23
+
+Host host4
+Host host5
+Key5 Value5
+''',
+            SshConfig(
+              SshConfigGlobals([
+                SshConfigOption('Key1', ['Value1']),
+                SshConfigComment.empty(),
+              ]),
+              [
+                SshConfigHost([
+                  'host1.example.com',
+                ], [
+                  SshConfigOption('Key1', ['Value1']),
+                ]),
+                SshConfigHost([
+                  'host2',
+                  'host3',
+                ], [
+                  SshConfigOption('Key2', ['Value3']),
+                  SshConfigComment('Host host23'),
+                  SshConfigComment.empty(),
+                ]),
+                SshConfigHost(
+                  [
+                    'host4',
+                  ],
+                  [],
+                ),
+                SshConfigHost([
+                  'host5',
+                ], [
+                  SshConfigOption('Key5', ['Value5']),
+                ]),
+              ],
+            ),
           ),
         ],
         (fixture) async {
