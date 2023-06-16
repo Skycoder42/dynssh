@@ -24,7 +24,14 @@
       "plugins": "git colorize vscode",
       "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
     },
-    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "azureDnsAutoDetection": true,
+      "installDockerBuildx": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    }
   },
   "postCreateCommand": "./tool/setup-git-hooks.sh"
 }

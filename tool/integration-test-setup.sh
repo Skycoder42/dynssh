@@ -14,7 +14,7 @@ chmod 600 ~/.ssh/known_hosts
 cat ~/.ssh/id_ed25519.pub > ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 
-cat << EOF > ~/.ssh/config
+cat << EOF > ~/.ssh/config.template
 Host test.dynssh.skycoder42.de
     HostName localhost
     User $USER
@@ -23,5 +23,9 @@ Host test.dynssh.skycoder42.de
 Host forbidden.test.dynssh.skycoder42.de
     HostName aur.archlinux.org
 EOF
-chmod 600 ~/.ssh/config
+chmod 600 ~/.ssh/config.template
+echo ::endgroup::
+
+echo ::group::Build docker image
+docker build -t local/dynssh .
 echo ::endgroup::
