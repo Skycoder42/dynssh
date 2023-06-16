@@ -25,6 +25,7 @@ abstract base class DynsshTestCase {
     late Directory testDir;
     late Options testOptions;
     late int port;
+    late InternetAddress serverIp;
 
     setUpAll(() async {
       Logger.root
@@ -32,6 +33,7 @@ abstract base class DynsshTestCase {
         ..onRecord.listen(_printLogRecord);
 
       testDir = await Directory.systemTemp.createTemp();
+      serverIp = await getServerIp();
 
       final apiKeyFile = File.fromUri(testDir.uri.resolve('api-keys.json'));
       await apiKeyFile.writeAsString(
@@ -52,8 +54,15 @@ abstract base class DynsshTestCase {
         logLevel: Level.ALL,
       );
 
-      await File('${testOptions.sshDirectory}/config.template')
-          .copy('${testOptions.sshDirectory}/config');
+      await File('${testOptions.sshDirectory}/config').writeAsString('''
+Host test.dynssh.skycoder42.de
+    HostName ${getServerName()}
+    User ${Platform.environment['USER']}
+    IdentityFile ~/.ssh/id_ed25519
+
+Host forbidden.test.dynssh.skycoder42.de
+    HostName aur.archlinux.org
+''');
 
       port = await runDynssh(testOptions);
     });
@@ -76,9 +85,9 @@ abstract base class DynsshTestCase {
         port: port,
         path: path ?? '/dynssh/update',
         queryParameters: query ??
-            const <String, String>{
+            <String, String>{
               'fqdn': testFqdn,
-              'ipv4': '127.0.0.1',
+              'ipv4': serverIp.toString(),
             },
       );
 
@@ -148,9 +157,9 @@ abstract base class DynsshTestCase {
     test('rejects query without both ip addresses with 400', () async {
       expect(
         sendUpdateRequest(
-          query: const {
+          query: {
             'fqdn': testFqdn,
-            'ipv4': '127.0.0.1',
+            'ipv4': serverIp.toString(),
             'ipv6': '::',
           },
         ),
@@ -163,7 +172,7 @@ abstract base class DynsshTestCase {
         sendUpdateRequest(
           query: {
             'fqdn': testForbiddenFqdn,
-            'ipv4': '127.0.0.1',
+            'ipv4': serverIp.toString(),
           },
           authHeader: testForbiddenAuthHeader,
         ),
@@ -183,7 +192,7 @@ abstract base class DynsshTestCase {
         sshConfig.readAsString(),
         completion('''
 Host test.dynssh.skycoder42.de
-    HostName 127.0.0.1
+    HostName $serverIp
     User ${Platform.environment['USER']}
     IdentityFile ~/.ssh/id_ed25519
 
@@ -196,6 +205,12 @@ Host forbidden.test.dynssh.skycoder42.de
 
   @visibleForOverriding
   Future<int> runDynssh(Options testOptions);
+
+  @visibleForOverriding
+  String getServerName();
+
+  @visibleForOverriding
+  Future<InternetAddress> getServerIp();
 
   void _printLogRecord(LogRecord logRecord) =>
       // ignore: avoid_print

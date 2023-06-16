@@ -38,6 +38,30 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
       await dockerProc.exitCode;
     });
 
-    return port;
+    for (var i = 0; i < 60; ++i) {
+      try {
+        final socket = await Socket.connect(
+          testOptions.host,
+          port,
+          timeout: const Duration(seconds: 1),
+        );
+        await socket.close();
+
+        return port;
+
+        // ignore: avoid_catches_without_on_clauses
+      } catch (e) {
+        continue;
+      }
+    }
+
+    fail('Failed to connect to ${testOptions.host}:$port');
   }
+
+  @override
+  String getServerName() => 'host.docker.internal';
+
+  @override
+  Future<InternetAddress> getServerIp() =>
+      InternetAddress.lookup(getServerName()).then((a) => a.first);
 }

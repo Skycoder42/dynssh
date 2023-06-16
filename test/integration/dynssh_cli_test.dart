@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dynssh/src/cli/options.dart';
 import 'package:dynssh/src/config/config.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';
@@ -24,4 +26,11 @@ final class _DynsshCliTestCase extends DynsshTestCase {
 
     return server.port;
   }
+
+  @override
+  String getServerName() => 'localhost';
+
+  @override
+  Future<InternetAddress> getServerIp() =>
+      Future.value(InternetAddress.loopbackIPv4);
 }
