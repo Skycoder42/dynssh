@@ -5,18 +5,15 @@ class SshConfigOption extends SshConfigEntry {
 
   final List<String> arguments;
 
-  SshConfigOption(this._keyword, this.arguments, [super.raw]);
+  SshConfigOption(this._keyword, List<String> arguments, [super.raw])
+      : arguments = List.unmodifiable(arguments);
 
   String get keyword => _keyword.toLowerCase();
 
   @override
   String create({required int indentation}) {
     final buffer = StringBuffer();
-    if (indentation > 0) {
-      buffer.write(' ' * indentation);
-    } else if (indentation < 0) {
-      buffer.write('\t' * -1 * indentation);
-    }
+    writeIndentation(buffer, indentation);
 
     buffer.write(_keyword);
     for (final argument in arguments) {

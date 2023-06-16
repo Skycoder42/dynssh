@@ -11,4 +11,13 @@ abstract class SshConfigEntry {
 
   @protected
   String create({required int indentation});
+
+  @protected
+  void writeIndentation(StringBuffer buffer, int indentation) {
+    if (indentation > 0) {
+      buffer.write(' ' * indentation);
+    } else if (indentation < 0) {
+      buffer.write('\t' * -1 * indentation);
+    }
+  }
 }

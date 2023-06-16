@@ -13,6 +13,9 @@ class SshConfigComment extends SshConfigEntry {
       return '';
     }
 
-    return '# $comment';
+    final buffer = StringBuffer();
+    writeIndentation(buffer, indentation);
+    buffer.write('# $comment');
+    return buffer.toString();
   }
 }
