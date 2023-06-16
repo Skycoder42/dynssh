@@ -28,7 +28,7 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
         '${testOptions.host}:$port:80',
         'local/dynssh',
         '-l',
-        testOptions.logLevel.name,
+        testOptions.logLevel.name.toLowerCase(),
       ],
       mode: ProcessStartMode.inheritStdio,
     );
