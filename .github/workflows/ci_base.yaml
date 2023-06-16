@@ -13,6 +13,6 @@ jobs:
       integrationTestPaths: -P integration
       integrationTestSetup: >-
         {
-          "linux": "./tool/integration-test-setup.sh",
-          "macos": "./tool/integration-test-setup.sh"
+          "linux": "./tool/integration-test-setup.sh true",
+          "macos": "./tool/integration-test-setup.sh false"
         }

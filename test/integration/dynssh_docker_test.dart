@@ -1,3 +1,6 @@
+@TestOn('linux')
+library dynssh_docker_test;
+
 import 'dart:io';
 
 import 'package:dynssh/src/cli/options.dart';

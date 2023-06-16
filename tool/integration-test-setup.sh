@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 
+with_docker=$1
+
 echo ::group::Setup SSH
 # sudo service ssh start
 
@@ -26,6 +28,8 @@ EOF
 chmod 600 ~/.ssh/config.template
 echo ::endgroup::
 
-echo ::group::Build docker image
-docker build -t local/dynssh .
-echo ::endgroup::
+if [ "$with_docker" == 'true' ]; then
+    echo ::group::Build docker image
+    docker build -t local/dynssh --build-arg TARGETPLATFORM=linux/amd64 .
+    echo ::endgroup::
+fi
