@@ -1,7 +1,9 @@
 @TestOn('linux')
 library dynssh_docker_test;
 
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dynssh/src/cli/options.dart';
 import 'package:test/test.dart';
@@ -11,15 +13,20 @@ import 'dynssh_test_case.dart';
 void main() => _DynsshDockerTestCase().call();
 
 final class _DynsshDockerTestCase extends DynsshTestCase {
+  late String _containerName;
+
   @override
   Future<int> runDynssh(Options testOptions) async {
     final port = testOptions.port == 0 ? 8042 : testOptions.port;
 
+    _containerName = 'dynssh_docker_test_${Random.secure().nextInt(100000)}';
     final dockerProc = await Process.start(
       'docker',
       [
         'run',
         '--rm',
+        '--name',
+        _containerName,
         '-v',
         '${testOptions.sshDirectory}:/etc/ssh',
         '-v',
@@ -62,6 +69,19 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
   String getServerName() => 'host.docker.internal';
 
   @override
-  Future<InternetAddress> getServerIp() =>
-      InternetAddress.lookup(getServerName()).then((a) => a.first);
+  Future<String> getServerIp() async {
+    final result = await Process.run('getent', ['hosts', getServerName()]);
+    expect(
+      result.exitCode,
+      0,
+      reason: result.stderr.toString(),
+    );
+    final lines = const LineSplitter().convert(result.stdout as String);
+    expect(
+      lines,
+      hasLength(greaterThanOrEqualTo(1)),
+      reason: result.stderr.toString(),
+    );
+    return lines.first.split(' ').first;
+  }
 }

@@ -31,6 +31,6 @@ final class _DynsshCliTestCase extends DynsshTestCase {
   String getServerName() => 'localhost';
 
   @override
-  Future<InternetAddress> getServerIp() =>
-      Future.value(InternetAddress.loopbackIPv4);
+  Future<String> getServerIp() =>
+      Future.value(InternetAddress.loopbackIPv4.address);
 }

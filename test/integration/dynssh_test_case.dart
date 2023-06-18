@@ -25,7 +25,7 @@ abstract base class DynsshTestCase {
     late Directory testDir;
     late Options testOptions;
     late int port;
-    late InternetAddress serverIp;
+    late String serverIp;
 
     setUpAll(() async {
       Logger.root
@@ -33,7 +33,6 @@ abstract base class DynsshTestCase {
         ..onRecord.listen(_printLogRecord);
 
       testDir = await Directory.systemTemp.createTemp();
-      serverIp = await getServerIp();
 
       final apiKeyFile = File.fromUri(testDir.uri.resolve('api-keys.json'));
       await apiKeyFile.writeAsString(
@@ -65,6 +64,7 @@ Host forbidden.test.dynssh.skycoder42.de
 ''');
 
       port = await runDynssh(testOptions);
+      serverIp = await getServerIp();
     });
 
     setUp(() {
@@ -87,7 +87,7 @@ Host forbidden.test.dynssh.skycoder42.de
         queryParameters: query ??
             <String, String>{
               'fqdn': testFqdn,
-              'ipv4': serverIp.toString(),
+              'ipv4': serverIp,
             },
       );
 
@@ -159,7 +159,7 @@ Host forbidden.test.dynssh.skycoder42.de
         sendUpdateRequest(
           query: {
             'fqdn': testFqdn,
-            'ipv4': serverIp.toString(),
+            'ipv4': serverIp,
             'ipv6': '::',
           },
         ),
@@ -172,7 +172,7 @@ Host forbidden.test.dynssh.skycoder42.de
         sendUpdateRequest(
           query: {
             'fqdn': testForbiddenFqdn,
-            'ipv4': serverIp.toString(),
+            'ipv4': serverIp,
           },
           authHeader: testForbiddenAuthHeader,
         ),
@@ -210,7 +210,7 @@ Host forbidden.test.dynssh.skycoder42.de
   String getServerName();
 
   @visibleForOverriding
-  Future<InternetAddress> getServerIp();
+  Future<String> getServerIp();
 
   void _printLogRecord(LogRecord logRecord) =>
       // ignore: avoid_print
