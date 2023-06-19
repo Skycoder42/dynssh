@@ -10,6 +10,7 @@ mkdir -p ~/.ssh && chmod 700 ~/.ssh
 ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
 
 ssh-keyscan localhost > ~/.ssh/known_hosts
+ssh-keyscan localhost | sed 's/localhost/host.docker.internal/g' >> ~/.ssh/known_hosts
 ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
 chmod 600 ~/.ssh/known_hosts
 
