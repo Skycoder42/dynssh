@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 @TestOn('linux')
 library dynssh_docker_test;
 
@@ -27,6 +29,7 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
         '--rm',
         '--name',
         _containerName,
+        '--add-host=host.docker.internal:host-gateway',
         '-v',
         '${testOptions.sshDirectory}:/etc/ssh',
         '-v',
@@ -37,13 +40,15 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
         '-l',
         testOptions.logLevel.name.toLowerCase(),
       ],
-      mode: ProcessStartMode.inheritStdio,
     );
 
     addTearDown(() async {
       dockerProc.kill();
       await dockerProc.exitCode;
     });
+
+    dockerProc.stdout.listen(print);
+    dockerProc.stderr.listen(print);
 
     for (var i = 0; i < 60; ++i) {
       try {
@@ -77,12 +82,14 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
       0,
       reason: result.stderr.toString(),
     );
+
     final lines = const LineSplitter().convert(result.stdout as String);
     expect(
       lines,
       hasLength(greaterThanOrEqualTo(1)),
       reason: result.stderr.toString(),
     );
+
     return lines.first.split(' ').first;
   }
 }
