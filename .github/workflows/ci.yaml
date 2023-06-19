@@ -8,14 +8,14 @@ jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci_base.yaml
-    permissions:
-      contents: write
 
   cd:
     name: CD
     needs:
       - ci
     uses: Skycoder42/dart_test_tools/.github/workflows/compile.yml@main
+    permissions:
+      contents: write
     with:
       buildRunner: true
 
