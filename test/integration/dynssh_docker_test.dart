@@ -47,8 +47,14 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
       await dockerProc.exitCode;
     });
 
-    dockerProc.stdout.listen(print);
-    dockerProc.stderr.listen(print);
+    dockerProc.stdout
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen(print);
+    dockerProc.stderr
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen(print);
 
     for (var i = 0; i < 60; ++i) {
       try {
