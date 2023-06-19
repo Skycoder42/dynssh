@@ -82,7 +82,13 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
 
   @override
   Future<String> getServerIp() async {
-    final result = await Process.run('getent', ['hosts', getServerName()]);
+    final result = await Process.run('docker', [
+      'exec',
+      _containerName,
+      'getent',
+      'hosts',
+      getServerName(),
+    ]);
     expect(
       result.exitCode,
       0,
