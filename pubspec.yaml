@@ -38,3 +38,8 @@ dev_dependencies:
 
 dart_pre_commit:
   flutter-compat: false
+
+cider:
+  link_template:
+    tag: https://github.com/Skycoder42/dynssh/releases/tag/v%tag%
+    diff: https://github.com/Skycoder42/dynssh/compare/v%from%...v%to%
