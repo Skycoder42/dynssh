@@ -58,6 +58,7 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
 
         // ignore: avoid_catches_without_on_clauses
       } catch (e) {
+        await Future.delayed(const Duration(seconds: 1));
         continue;
       }
     }
