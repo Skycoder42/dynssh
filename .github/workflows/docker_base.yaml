@@ -22,5 +22,5 @@ jobs:
       latestOnly: ${{ inputs.latestOnly }}
       dockerPlatforms: linux/amd64,linux/arm64,linux/arm/v7
     secrets:
-      dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
-      dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}
+      dockerHubUsername: ${{ secrets.dockerHubUsername }}
+      dockerHubToken: ${{ secrets.dockerHubToken }}
