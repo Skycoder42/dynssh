@@ -8,6 +8,8 @@ jobs:
   ci:
     name: CI
     uses: ./.github/workflows/ci_base.yaml
+    permissions:
+      contents: write
 
   cd:
     name: CD
