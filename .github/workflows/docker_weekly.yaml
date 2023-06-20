@@ -6,7 +6,8 @@ on:
     - cron: "25 5 * * 4"
 
 jobs:
-  build:
+  trigger:
+    name: Trigger update workflow
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,6 +30,6 @@ jobs:
               workflow_id: 'docker_update.yaml',
               ref: 'refs/tags/v${{ steps.version.outputs.version }}',
               inputs: {
-                version: ${{ steps.version.outputs.version }}
+                version: '${{ steps.version.outputs.version }}'
               },
             })
