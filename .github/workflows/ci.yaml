@@ -27,7 +27,6 @@ jobs:
     uses: ./.github/workflows/docker_base.yaml
     with:
       version: ${{ needs.cd.outputs.releaseVersion }}
-      latestOnly: false
     secrets:
       dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}
