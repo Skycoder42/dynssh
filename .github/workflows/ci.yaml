@@ -3,6 +3,9 @@ name: Continuous integration
 on:
   workflow_dispatch:
   push:
+    paths-ignore:
+      - ".github/workflows/docker_weekly.yaml"
+      - ".github/workflows/docker_update.yaml"
 
 jobs:
   ci:

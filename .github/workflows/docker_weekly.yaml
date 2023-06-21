@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "25 5 * * 4"
 
+env:
+  WORKFLOW_ID: docker_update.yaml
+
 jobs:
   trigger:
     name: Trigger update workflow
@@ -26,12 +29,36 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.actions.createWorkflowDispatch({
+            const workflowId = '${{ env.WORKFLOW_ID }}';
+            const ref = 'refs/tags/v${{ steps.version.outputs.version }}';
+
+            const before = new Date(Date.now() - 1000);
+            const dispatchResponse = github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'docker_update.yaml',
-              ref: 'refs/tags/v${{ steps.version.outputs.version }}',
+              workflow_id: workflowId,
+              ref: ref,
               inputs: {
                 version: '${{ steps.version.outputs.version }}'
               },
+            });
+            core.debug(dispatchResponse);
+            const after = new Date(Date.now() + 1000);
+
+            const listRunsResponse = github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: workflowId,
+              branch: ref,
+              event: 'workflow_dispatch',
+              created: `${before.toISOString()}..${after.toISOString()}`
             })
+            core.debug(listRunsResponse);
+            const runs = listRunsResponse.data.workflow_runs;
+
+            if (runs.length != 1) {
+              throw new Error(`Expected 1 dispatched workflow, but found ${runs.length}`);
+            }
+            const runId = runs[0].id;
+
+            core.notice(`Dispatched workflow run is: ${runId}`);
