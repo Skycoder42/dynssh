@@ -51,7 +51,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: workflowId,
-              // branch: ref,
+              branch: ref,
               event: 'workflow_dispatch',
               // created: `${before.toISOString()}..${after.toISOString()}`,
             })
