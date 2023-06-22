@@ -43,6 +43,8 @@ jobs:
               },
             });
             core.debug(dispatchResponse);
+            core.info('Waiting 5 seconds for workflow to start');
+            await new Promise(r => setTimeout(r, 5000));
             const after = new Date(Date.now() + 1000);
 
             const listRunsResponse = await github.rest.actions.listWorkflowRuns({
