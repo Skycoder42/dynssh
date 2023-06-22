@@ -51,9 +51,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: workflowId,
-              branch: ref,
               event: 'workflow_dispatch',
-              // created: `${before.toISOString()}..${after.toISOString()}`,
+              created: `${before.toISOString()}..${after.toISOString()}`,
             })
             core.info(JSON.stringify(listRunsResponse));
             const runs = listRunsResponse.data.workflow_runs;
