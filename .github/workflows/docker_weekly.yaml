@@ -70,8 +70,8 @@ jobs:
               await new Promise(r => setTimeout(r, 5000));
 
               const statusResponse = await github.rest.actions.getWorkflowRun({
-                owner: this.owner,
-                repo: this.repo,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 run_id: runId,
               });
               core.debug(statusResponse);
