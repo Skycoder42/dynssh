@@ -33,7 +33,7 @@ jobs:
             const ref = 'refs/tags/v${{ steps.version.outputs.version }}';
 
             const before = new Date(Date.now() - 1000);
-            const dispatchResponse = github.rest.actions.createWorkflowDispatch({
+            const dispatchResponse = await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: workflowId,
@@ -45,7 +45,7 @@ jobs:
             core.debug(dispatchResponse);
             const after = new Date(Date.now() + 1000);
 
-            const listRunsResponse = github.rest.actions.listWorkflowRuns({
+            const listRunsResponse = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: workflowId,
