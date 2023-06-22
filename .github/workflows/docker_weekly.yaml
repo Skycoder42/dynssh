@@ -43,6 +43,8 @@ jobs:
               },
             });
             core.debug(dispatchResponse);
+            core.info('Waiting 5 seconds for workflow to start');
+            await new Promise(r => setTimeout(r, 5000));
             const after = new Date(Date.now() + 1000);
 
             const listRunsResponse = await github.rest.actions.listWorkflowRuns({
@@ -52,7 +54,7 @@ jobs:
               event: 'workflow_dispatch',
               created: `${before.toISOString()}..${after.toISOString()}`,
             })
-            core.info(JSON.stringify(listRunsResponse));
+            core.debug(listRunsResponse);
             const runs = listRunsResponse.data.workflow_runs;
 
             if (runs.length != 1) {
@@ -61,3 +63,25 @@ jobs:
             const runId = runs[0].id;
 
             core.notice(`Dispatched workflow run is: ${runId}`);
+
+            let status = null;
+            let conclusion = null;
+            do {
+              await new Promise(r => setTimeout(r, 5000));
+
+              const statusResponse = await github.rest.actions.getWorkflowRun({
+                owner: this.owner,
+                repo: this.repo,
+                run_id: runId,
+              });
+              core.debug(statusResponse);
+
+              status = statusResponse.data.status;
+              conclusion = statusResponse.data.conclusion;
+
+              core.info(`Waiting for dispatched workflow to complete (status: ${status})`);
+            } while (status !== 'completed')
+
+            if (conclusion !== 'success') {
+              core.setFailed(`Dispatched update workflow did complete with conclusion: ${conclusion}`);
+            }
