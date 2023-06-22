@@ -55,7 +55,7 @@ jobs:
               event: 'workflow_dispatch',
               // created: `${before.toISOString()}..${after.toISOString()}`,
             })
-            core.info(listRunsResponse);
+            core.info(JSON.stringify(listRunsResponse));
             const runs = listRunsResponse.data.workflow_runs;
 
             if (runs.length != 1) {
