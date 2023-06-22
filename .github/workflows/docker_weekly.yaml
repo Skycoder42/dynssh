@@ -67,7 +67,7 @@ jobs:
             let status = null;
             let conclusion = null;
             do {
-              await new Promise(r => setTimeout(r, 5000));
+              await new Promise(r => setTimeout(r, 60000));
 
               const statusResponse = await github.rest.actions.getWorkflowRun({
                 owner: context.repo.owner,
