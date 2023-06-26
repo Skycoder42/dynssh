@@ -42,22 +42,20 @@ class DynsshHandler implements HttpHandler {
       return true;
     }
 
-    final fqdn = request.uri.queryParameters['fqdn'];
-    final ipv4 = request.uri.queryParameters['ipv4'];
-    final ipv6 = request.uri.queryParameters['ipv6'];
+    final hostname = request.uri.queryParameters['hostname'];
+    final myIP = request.uri.queryParameters['myip'];
     final authHeader = request.headers.value(HttpHeaders.authorizationHeader);
 
     _logger
-      ..finest('fqdn: $fqdn')
-      ..finest('ipv4: $ipv4')
-      ..finest('ipv6: $ipv6')
+      ..finest('hostname: $hostname')
+      ..finest('myip: $myIP')
       ..finest('${HttpHeaders.authorizationHeader}: $authHeader');
 
-    final expectedAuthHeader = await _buildExpectedAuthHeader(fqdn);
+    final expectedAuthHeader = await _buildExpectedAuthHeader(hostname);
     if (expectedAuthHeader == null ||
         authHeader == null ||
         authHeader != expectedAuthHeader) {
-      _logger.warning('Blocked request with invalid credentials for $fqdn');
+      _logger.warning('Blocked request with invalid credentials for $hostname');
       request.response.statusCode = HttpStatus.unauthorized;
       request.response.writeln(
         '${HttpHeaders.authorizationHeader} header is missing '
@@ -67,20 +65,16 @@ class DynsshHandler implements HttpHandler {
       return true;
     }
 
-    final HostUpdate hostUpdate;
-    switch ((fqdn, ipv4, ipv6)) {
-      case (final String fqdn, final String ipv4, null):
-        hostUpdate = HostUpdate.ipv4(fqdn: fqdn, ipAddress: ipv4);
-      case (final String fqdn, null, final String ipv6):
-        hostUpdate = HostUpdate.ipv6(fqdn: fqdn, ipAddress: ipv6);
-      default:
-        request.response.statusCode = HttpStatus.badRequest;
-        request.response
-          ..writeln('Invalid Query!')
-          ..writeln('"fqdn" and one of "ipv4" or "ipv6" must be provided!');
-        await request.response.close();
-        return true;
+    if (hostname == null || myIP == null) {
+      request.response.statusCode = HttpStatus.badRequest;
+      request.response
+        ..writeln('Invalid Query!')
+        ..writeln('"hostname" and "myip" must be provided!');
+      await request.response.close();
+      return true;
     }
+
+    final hostUpdate = HostUpdate(hostname: hostname, ipAddress: myIP);
 
     _logger.finest('Request validation succeeded. Start host update');
     final updateResult = await _dynsshController.updateHost(hostUpdate);
@@ -90,18 +84,18 @@ class DynsshHandler implements HttpHandler {
     return true;
   }
 
-  Future<String?> _buildExpectedAuthHeader(String? fqdn) async {
-    if (fqdn == null) {
+  Future<String?> _buildExpectedAuthHeader(String? hostname) async {
+    if (hostname == null) {
       return null;
     }
 
-    final apiKey = await _config.findApiKey(fqdn);
+    final apiKey = await _config.findApiKey(hostname);
     if (apiKey == null) {
-      _logger.warning('Unable to find API-Key for fqdn: $fqdn');
+      _logger.warning('Unable to find API-Key for hostname: $hostname');
       return null;
     }
 
-    final authSecret = '$fqdn:$apiKey';
+    final authSecret = '$hostname:$apiKey';
     final encodedSecret = base64Url.encode(utf8.encode(authSecret));
     final authHeader = 'Basic $encodedSecret';
     _logger.finest('Expected ${HttpHeaders.authorizationHeader}: $authHeader');

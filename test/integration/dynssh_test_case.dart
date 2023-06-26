@@ -10,9 +10,9 @@ import 'package:test/test.dart';
 
 abstract base class DynsshTestCase {
   void call() {
-    const testFqdn = 'test.dynssh.skycoder42.de';
-    const testUnauthorizedFqdn = 'unauthorized.$testFqdn';
-    const testForbiddenFqdn = 'forbidden.$testFqdn';
+    const testHostname = 'test.dynssh.skycoder42.de';
+    const testUnauthorizedHostname = 'unauthorized.$testHostname';
+    const testForbiddenHostname = 'forbidden.$testHostname';
     const testApiKey =
         'j8efu893pu8fsjifskjfo983u0f09ufe0suf093uf90uwu9eusfkdsf';
     const testAuthHeader =
@@ -38,9 +38,9 @@ abstract base class DynsshTestCase {
       await apiKeyFile.writeAsString(
         json.encode(
           const ApiKeyConfig({
-            testFqdn: testApiKey,
-            testUnauthorizedFqdn: 'invalid API key',
-            testForbiddenFqdn: testApiKey,
+            testHostname: testApiKey,
+            testUnauthorizedHostname: 'invalid API key',
+            testForbiddenHostname: testApiKey,
           }).toJson(),
         ),
       );
@@ -86,8 +86,8 @@ Host forbidden.test.dynssh.skycoder42.de
         path: path ?? '/dynssh/update',
         queryParameters: query ??
             <String, String>{
-              'fqdn': testFqdn,
-              'ipv4': serverIp,
+              'hostname': testHostname,
+              'myip': serverIp,
             },
       );
 
@@ -126,43 +126,30 @@ Host forbidden.test.dynssh.skycoder42.de
       );
     });
 
-    test('rejects missing fqdn with 401', () async {
+    test('rejects missing hostname with 401', () async {
       expect(
         sendUpdateRequest(query: const {}),
         completion(HttpStatus.unauthorized),
       );
     });
 
-    test('rejects invalid fqdn with 401', () async {
+    test('rejects invalid hostname with 401', () async {
       expect(
-        sendUpdateRequest(query: const {'fqdn': 'example.com'}),
+        sendUpdateRequest(query: const {'hostname': 'example.com'}),
         completion(HttpStatus.unauthorized),
       );
     });
 
-    test('rejects valid fqdn with invalid api key with 401', () async {
+    test('rejects valid hostname with invalid api key with 401', () async {
       expect(
-        sendUpdateRequest(query: const {'fqdn': testUnauthorizedFqdn}),
+        sendUpdateRequest(query: const {'hostname': testUnauthorizedHostname}),
         completion(HttpStatus.unauthorized),
       );
     });
 
     test('rejects query without ip address with 400', () async {
       expect(
-        sendUpdateRequest(query: const {'fqdn': testFqdn}),
-        completion(HttpStatus.badRequest),
-      );
-    });
-
-    test('rejects query without both ip addresses with 400', () async {
-      expect(
-        sendUpdateRequest(
-          query: {
-            'fqdn': testFqdn,
-            'ipv4': serverIp,
-            'ipv6': '::',
-          },
-        ),
+        sendUpdateRequest(query: const {'hostname': testHostname}),
         completion(HttpStatus.badRequest),
       );
     });
@@ -171,8 +158,8 @@ Host forbidden.test.dynssh.skycoder42.de
       expect(
         sendUpdateRequest(
           query: {
-            'fqdn': testForbiddenFqdn,
-            'ipv4': serverIp,
+            'hostname': testForbiddenHostname,
+            'myip': serverIp,
           },
           authHeader: testForbiddenAuthHeader,
         ),

@@ -74,12 +74,12 @@ The API-Key JSON file has the following format:
 ```json
 {
   "apiKeys": {
-    "<fqdn1>": "<api-key1>",
-    "<fqdn2>": "<api-key2>",
+    "<hostname1>": "<api-key1>",
+    "<hostname2>": "<api-key2>",
   }
 }
 ```
-With the `<fqdnX>` being the the domain name and `<api-keyX>` the API key for that domain. There are no formal
+With the `<hostnameX>` being the the domain name and `<api-keyX>` the API key for that domain. There are no formal
 requirements for the API Keys themselves, but recommendation is to use a long, random, base64 key. You can, for example,
 use `openssl` to generate such a key:
 
@@ -88,18 +88,21 @@ openssl rand -base64 48
 ```
 
 ### API usage
-The server only provides a single Endpoint:
+The server only provides a single endpoint:
 ```
-POST <host>/dynssh/update?fqdn=<fqdn>[&ipv4=<ipv4>][&ipv6=<ipv6>]
+POST <host>/dynssh/update?hostname=<hostname>&myip=<ipAddress>
 ```
 
-The `fqdn` parameter is always required and must be the FQDN of the host as defined in the SSH config file to change the
-IP address for. The you must provide *either* `ipv4` *or* `ipv6` (not both) to specify the new IP address for that host.
+This endpoint is modeled after the [DYNDNS Update API](https://help.dyn.com/remote-access-api/perform-update/) and thus
+should be able to be used as drop in replacement in any dyndns client to instead report to dynssh.
+
+The `hostname` and `myip` parameters are always required. `hostname` must be the alias of the host as defined in the SSH
+config file to change the IP address for. The `myip` parameter is used to specify the new IP address for that host.
 
 ### Authentication
-In addition to those parameters you must also authenticate against the server. This uses HTTP Basic auth with the `fqdn`
-as username and the API-Key as password, i. e. `base64UrlEncode(fqdn ':' apiKey)`. Thus, for each updatable fqdn there
-must be an entry with the corresponding API Key in the API Key JSON file.
+In addition to those parameters you must also authenticate against the server. This uses HTTP Basic auth with the
+`hostname` as username and the API-Key as password, i. e. `base64UrlEncode(hostname ':' apiKey)`. Thus, for each
+updatable hostname there must be an entry with the corresponding API Key in the API Key JSON file.
 
 In addition to that, the server will verify that the SSH host keys will not have changed, meaning it will query the new
 IP address for it's host keys and compare them with the currently verified host keys of the old IP address. The update

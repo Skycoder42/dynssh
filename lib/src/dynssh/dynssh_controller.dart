@@ -36,10 +36,10 @@ class DynsshController {
     _logger.info('Applying host update $hostUpdate...');
 
     final sshConfig = await _sshConfigParser.parse();
-    final hostConfig = sshConfig.findHost(hostUpdate.fqdn);
+    final hostConfig = sshConfig.findHost(hostUpdate.hostname);
     if (hostConfig == null) {
       _logger.warning(
-        'Unable to find configuration for host: ${hostUpdate.fqdn}',
+        'Unable to find configuration for host: ${hostUpdate.hostname}',
       );
       return false;
     }

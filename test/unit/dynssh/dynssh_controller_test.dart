@@ -72,8 +72,8 @@ void main() {
 
     group('updateHost', () {
       const testOldAddress = '2.4.6.8';
-      const testHostUpdate = HostUpdate.ipv4(
-        fqdn: 'test-fqdn',
+      const testHostUpdate = HostUpdate(
+        hostname: 'test-hostname',
         ipAddress: '1.2.3.4',
       );
 
@@ -86,7 +86,7 @@ void main() {
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
-          () => mockSshConfig.findHost(testHostUpdate.fqdn),
+          () => mockSshConfig.findHost(testHostUpdate.hostname),
         ]);
       });
 
@@ -101,7 +101,7 @@ void main() {
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
-          () => mockSshConfig.findHost(testHostUpdate.fqdn),
+          () => mockSshConfig.findHost(testHostUpdate.hostname),
           () => mockSshConfigHost['HostName'],
           () => mockSshConfigHost.patterns,
           () => mockSshConfigHost['Port'],
@@ -131,7 +131,7 @@ void main() {
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
-          () => mockSshConfig.findHost(testHostUpdate.fqdn),
+          () => mockSshConfig.findHost(testHostUpdate.hostname),
           () => mockSshConfigHost['HostName'],
           () => mockSshConfigHost['Port'],
           () => mockSshKnownHostsParser.getHostKeys(testOldAddress),
@@ -158,7 +158,7 @@ void main() {
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
-          () => mockSshConfig.findHost(testHostUpdate.fqdn),
+          () => mockSshConfig.findHost(testHostUpdate.hostname),
           () => mockSshConfigHost['HostName'],
           () => mockSshConfigHost['Port'],
           () => mockSshKnownHostsParser.getHostKeys(testOldAddress, 123),

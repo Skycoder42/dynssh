@@ -41,7 +41,7 @@ class FakeHttpRequest extends Fake implements HttpRequest {
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      const HostUpdate.ipv4(fqdn: 'fqdn', ipAddress: 'ipAddress'),
+      const HostUpdate(hostname: 'hostname', ipAddress: 'ipAddress'),
     );
   });
 
@@ -80,13 +80,12 @@ void main() {
     );
 
     group('call', () {
-      const testFqdn = 'test.example.com';
-      const testMissingFqdn = 'missing.example.com';
-      const testInvalidFqdn = 'invalid.example.com';
+      const testHostname = 'test.example.com';
+      const testMissingHostname = 'missing.example.com';
+      const testInvalidHostname = 'invalid.example.com';
       const testApiKey = 'test-api-key';
       const testAuthHeader = 'Basic dGVzdC5leGFtcGxlLmNvbTp0ZXN0LWFwaS1rZXk=';
-      const testIpv4 = '12.23.34.45';
-      const testIpv6 = '::';
+      const testMyIP = '12.23.34.45';
 
       testData<(String, int)>(
         'disallows all methods except POST',
@@ -121,23 +120,23 @@ void main() {
         'rejects requests with invalid API-credentials',
         const [
           (null, null, HttpStatus.unauthorized),
-          (testFqdn, null, HttpStatus.unauthorized),
+          (testHostname, null, HttpStatus.unauthorized),
           (null, testAuthHeader, HttpStatus.unauthorized),
-          (testFqdn, 'invalid-auth-header', HttpStatus.unauthorized),
+          (testHostname, 'invalid-auth-header', HttpStatus.unauthorized),
           (
-            testMissingFqdn,
+            testMissingHostname,
             testAuthHeader,
             HttpStatus.unauthorized,
           ),
           (
-            testInvalidFqdn,
+            testInvalidHostname,
             testAuthHeader,
             HttpStatus.unauthorized,
           ),
-          (testFqdn, testAuthHeader, HttpStatus.badRequest),
+          (testHostname, testAuthHeader, HttpStatus.badRequest),
         ],
         (fixture) async {
-          when(() => mockConfig.findApiKey(testFqdn))
+          when(() => mockConfig.findApiKey(testHostname))
               .thenReturnAsync(testApiKey);
 
           final request = FakeHttpRequest(
@@ -146,7 +145,7 @@ void main() {
               '',
               '/dynssh/update',
               <String, String>{
-                if (fixture.$1 != null) 'fqdn': fixture.$1!,
+                if (fixture.$1 != null) 'hostname': fixture.$1!,
               },
             ),
             FakeHttpHeaders({
@@ -171,26 +170,18 @@ void main() {
         },
       );
 
-      testData<(String?, String?, HostUpdate?, int)>(
+      testData<(String?, HostUpdate?, int)>(
         'runs host update with given parameters, if valid',
         const [
-          (null, null, null, HttpStatus.badRequest),
+          (null, null, HttpStatus.badRequest),
           (
-            null,
-            testIpv6,
-            HostUpdate.ipv6(fqdn: testFqdn, ipAddress: testIpv6),
+            testMyIP,
+            HostUpdate(hostname: testHostname, ipAddress: testMyIP),
             HttpStatus.forbidden,
           ),
-          (
-            testIpv4,
-            null,
-            HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
-            HttpStatus.forbidden,
-          ),
-          (testIpv4, testIpv6, null, HttpStatus.badRequest),
         ],
         (fixture) async {
-          when(() => mockConfig.findApiKey(testFqdn))
+          when(() => mockConfig.findApiKey(testHostname))
               .thenReturnAsync(testApiKey);
           when(() => mockDynsshController.updateHost(any()))
               .thenReturnAsync(false);
@@ -201,9 +192,8 @@ void main() {
               '',
               '/dynssh/update',
               <String, String>{
-                'fqdn': testFqdn,
-                if (fixture.$1 != null) 'ipv4': fixture.$1!,
-                if (fixture.$2 != null) 'ipv6': fixture.$2!,
+                'hostname': testHostname,
+                if (fixture.$1 != null) 'myip': fixture.$1!,
               },
             ),
             FakeHttpHeaders({
@@ -217,10 +207,10 @@ void main() {
           expect(result, isTrue);
 
           verifyInOrder([
-            () => mockConfig.findApiKey(testFqdn),
-            if (fixture.$3 != null)
-              () => mockDynsshController.updateHost(fixture.$3!),
-            () => mockHttpResponse.statusCode = fixture.$4,
+            () => mockConfig.findApiKey(testHostname),
+            if (fixture.$2 != null)
+              () => mockDynsshController.updateHost(fixture.$2!),
+            () => mockHttpResponse.statusCode = fixture.$3,
             () => mockHttpResponse.close(),
           ]);
           if (fixture.$1 == null) {
@@ -236,7 +226,7 @@ void main() {
           (true, HttpStatus.accepted),
         ],
         (fixture) async {
-          when(() => mockConfig.findApiKey(testFqdn))
+          when(() => mockConfig.findApiKey(testHostname))
               .thenReturnAsync(testApiKey);
           when(() => mockDynsshController.updateHost(any()))
               .thenReturnAsync(fixture.$1);
@@ -247,8 +237,8 @@ void main() {
               '',
               '/dynssh/update',
               <String, String>{
-                'fqdn': testFqdn,
-                'ipv4': testIpv4,
+                'hostname': testHostname,
+                'myip': testMyIP,
               },
             ),
             FakeHttpHeaders({
@@ -262,9 +252,12 @@ void main() {
           expect(result, isTrue);
 
           verifyInOrder([
-            () => mockConfig.findApiKey(testFqdn),
+            () => mockConfig.findApiKey(testHostname),
             () => mockDynsshController.updateHost(
-                  const HostUpdate.ipv4(fqdn: testFqdn, ipAddress: testIpv4),
+                  const HostUpdate(
+                    hostname: testHostname,
+                    ipAddress: testMyIP,
+                  ),
                 ),
             () => mockHttpResponse.statusCode = fixture.$2,
             () => mockHttpResponse.close(),
