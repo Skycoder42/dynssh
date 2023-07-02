@@ -31,7 +31,9 @@ abstract base class CliParserBase<TOptions extends IOptions> {
         exit(0);
       }
 
-      options.logAll(_logger);
+      options
+        ..validate()
+        ..logAll(_logger);
 
       return options;
     } on ArgParserException catch (e) {

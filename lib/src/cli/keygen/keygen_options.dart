@@ -1,7 +1,6 @@
-// coverage:ignore-file
-
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:build_cli_annotations/build_cli_annotations.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
@@ -9,26 +8,34 @@ import 'package:meta/meta.dart';
 import '../../adapter/posix_adapter.dart';
 import '../common/i_options.dart';
 
-part 'options.g.dart';
+part 'keygen_options.g.dart';
 
 @CliOptions()
 @immutable
-class Options implements IOptions {
+class KeygenOptions implements IOptions {
   @CliOption(
-    abbr: 'H',
-    valueHelp: 'host',
-    provideDefaultToOverride: true,
-    help: 'The host address to listen to.',
+    name: 'host-name',
+    abbr: 'n',
+    valueHelp: 'host-name',
+    help: 'The host names to generate new API keys for.',
   )
-  final String host;
+  final List<String> hostNames;
 
   @CliOption(
-    abbr: 'p',
-    valueHelp: 'port',
-    defaultsTo: 80,
-    help: 'The port to listen to.',
+    abbr: 'o',
+    negatable: true,
+    defaultsTo: false,
+    help: 'Allow existing API-Keys to be overwritten.',
   )
-  final int port;
+  final bool overwrite;
+
+  @CliOption(
+    abbr: 'L',
+    defaultsTo: 64,
+    valueHelp: 'bytes',
+    help: 'The length (in bytes) each generate key should have.',
+  )
+  final int keyLength;
 
   @CliOption(
     abbr: 'k',
@@ -39,12 +46,12 @@ class Options implements IOptions {
   final String apiKeyPath;
 
   @CliOption(
-    abbr: 'd',
-    valueHelp: 'path',
-    help: 'The path to the ssh directory where configuration files are stored.',
-    provideDefaultToOverride: true,
+    abbr: 'p',
+    defaultsTo: true,
+    negatable: true,
+    help: 'Print the newly generated keys.',
   )
-  final String sshDirectory;
+  final bool printKeys;
 
   @override
   @CliOption(
@@ -78,51 +85,41 @@ class Options implements IOptions {
   )
   final bool help;
 
-  const Options({
-    required this.host,
-    required this.port,
+  const KeygenOptions({
+    required this.hostNames,
+    required this.overwrite,
+    required this.keyLength,
     required this.apiKeyPath,
-    required this.sshDirectory,
+    required this.printKeys,
     required this.logLevel,
     this.help = false,
   });
 
   @override
-  void validate() {}
+  void validate() {
+    if (hostNames.isEmpty) {
+      throw ArgParserException('At least one host name must be given!');
+    }
+  }
 
   @override
   void logAll(Logger logger) => logger
-    ..config('host: $host')
-    ..config('port: $port')
+    ..config('hostNames: $hostNames')
+    ..config('overwrite: $overwrite')
+    ..config('keyLength: $keyLength')
     ..config('apiKeyPath: $apiKeyPath')
-    ..config('sshConfigDir: $sshDirectory')
+    ..config('printKeys: $printKeys')
     ..config('logLevel: $logLevel');
 
   static ArgParser buildArgParser(PosixAdapter posixAdapter) =>
-      _$populateOptionsParser(
+      _$populateKeygenOptionsParser(
         ArgParser(
           allowTrailingOptions: false,
           usageLineLength: stdout.hasTerminal ? stdout.terminalColumns : null,
         ),
-        hostDefaultOverride: InternetAddress.anyIPv4.address,
         apiKeyPathDefaultOverride: IOptions.apiKeyPathDefault(posixAdapter),
-        sshDirectoryDefaultOverride: _sshDirectoryDefault(posixAdapter),
       );
 
-  static Options parseOptions(ArgResults argResults) =>
-      _$parseOptionsResult(argResults);
-
-  static String _sshDirectoryDefault(PosixAdapter posixAdapter) {
-    const globalSshDir = '/etc/ssh';
-    if (posixAdapter.isRoot) {
-      return globalSshDir;
-    } else {
-      final homePath = Platform.environment['HOME'];
-      if (homePath == null) {
-        return globalSshDir;
-      }
-
-      return Directory(homePath).uri.resolve('.ssh').toFilePath();
-    }
-  }
+  static KeygenOptions parseOptions(ArgResults argResults) =>
+      _$parseKeygenOptionsResult(argResults);
 }

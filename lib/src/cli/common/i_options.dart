@@ -10,6 +10,8 @@ abstract interface class IOptions {
 
   bool get help;
 
+  void validate();
+
   void logAll(Logger logger);
 
   @internal
