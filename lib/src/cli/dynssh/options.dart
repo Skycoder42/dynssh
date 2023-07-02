@@ -6,13 +6,14 @@ import 'package:build_cli_annotations/build_cli_annotations.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
-import '../adapter/posix_adapter.dart';
+import '../../adapter/posix_adapter.dart';
+import '../common/i_options.dart';
 
 part 'options.g.dart';
 
 @CliOptions()
 @immutable
-class Options {
+class Options implements IOptions {
   @CliOption(
     abbr: 'H',
     valueHelp: 'host',
@@ -45,8 +46,9 @@ class Options {
   )
   final String sshDirectory;
 
+  @override
   @CliOption(
-    convert: _logLevelFromString,
+    convert: logLevelFromString,
     abbr: 'l',
     allowed: [
       'all',
@@ -67,6 +69,7 @@ class Options {
   )
   final Level logLevel;
 
+  @override
   @CliOption(
     abbr: 'h',
     negatable: false,
@@ -84,6 +87,7 @@ class Options {
     this.help = false,
   });
 
+  @override
   void logAll(Logger logger) => logger
     ..config('host: $host')
     ..config('port: $port')
@@ -98,29 +102,12 @@ class Options {
           usageLineLength: stdout.hasTerminal ? stdout.terminalColumns : null,
         ),
         hostDefaultOverride: InternetAddress.anyIPv4.address,
-        apiKeyPathDefaultOverride: _apiKeyPathDefault(posixAdapter),
+        apiKeyPathDefaultOverride: IOptions.apiKeyPathDefault(posixAdapter),
         sshDirectoryDefaultOverride: _sshDirectoryDefault(posixAdapter),
       );
 
   static Options parseOptions(ArgResults argResults) =>
       _$parseOptionsResult(argResults);
-
-  static String _apiKeyPathDefault(PosixAdapter posixAdapter) {
-    const pathSuffix = 'dynssh/api-keys.json';
-    if (posixAdapter.isRoot) {
-      return '/etc/$pathSuffix';
-    } else {
-      final homePath = Platform.environment['HOME'];
-      if (homePath == null) {
-        return Directory.current.path;
-      }
-
-      return Directory(homePath)
-          .uri
-          .resolve('.config/$pathSuffix')
-          .toFilePath();
-    }
-  }
 
   static String _sshDirectoryDefault(PosixAdapter posixAdapter) {
     const globalSshDir = '/etc/ssh';
@@ -136,6 +123,3 @@ class Options {
     }
   }
 }
-
-Level _logLevelFromString(String level) =>
-    Level.LEVELS.singleWhere((element) => element.name == level.toUpperCase());

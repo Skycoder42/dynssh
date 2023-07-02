@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dynssh/src/cli/cli_parser.dart';
+import 'package:dynssh/src/cli/dynssh/cli_parser.dart';
 import 'package:dynssh/src/cli/signals.dart';
 import 'package:dynssh/src/config/config.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';

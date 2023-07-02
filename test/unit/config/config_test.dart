@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dynssh/src/cli/options.dart';
+import 'package:dynssh/src/cli/dynssh/options.dart';
 import 'package:dynssh/src/config/config.dart';
 import 'package:dynssh/src/models/api_key_config.dart';
 import 'package:logging/logging.dart';

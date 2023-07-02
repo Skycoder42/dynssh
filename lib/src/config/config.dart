@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:riverpod/riverpod.dart';
 
-import '../cli/options.dart';
+import '../cli/dynssh/options.dart';
 import '../models/api_key_config.dart';
 
 // coverage:ignore-start

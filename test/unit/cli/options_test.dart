@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/adapter/posix_adapter.dart';
-import 'package:dynssh/src/cli/options.dart';
+import 'package:dynssh/src/cli/dynssh/options.dart';
 import 'package:logging/logging.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';

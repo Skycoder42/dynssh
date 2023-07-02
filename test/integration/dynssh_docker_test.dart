@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:dynssh/src/cli/options.dart';
+import 'package:dynssh/src/cli/dynssh/options.dart';
 import 'package:test/test.dart';
 
 import 'dynssh_test_case.dart';

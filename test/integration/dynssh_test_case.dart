@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dynssh/src/cli/options.dart';
+import 'package:dynssh/src/cli/dynssh/options.dart';
 import 'package:dynssh/src/models/api_key_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';

@@ -1,34 +1,25 @@
-// coverage:ignore-file
-
 import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:meta/meta.dart';
 
-import '../adapter/posix_adapter.dart';
-import 'options.dart';
+import '../../adapter/posix_adapter.dart';
+import 'i_options.dart';
 
-// coverage:ignore-start
-final cliParserProvider = Provider(
-  (ref) => CliParser(
-    ref.watch(posixAdapterProvider),
-  ),
-);
-// coverage:ignore-end
-
-class CliParser {
+abstract base class CliParserBase<TOptions extends IOptions> {
   final PosixAdapter _posixAdapter;
-  final _logger = Logger('$CliParser');
+  final Logger _logger;
 
-  CliParser(this._posixAdapter);
+  CliParserBase(this._posixAdapter, this._logger);
 
-  Options parse(List<String> arguments) {
-    final argParser = Options.buildArgParser(_posixAdapter);
+  @nonVirtual
+  TOptions parse(List<String> arguments) {
+    final argParser = buildArgParser(_posixAdapter);
 
     try {
       final argResults = argParser.parse(arguments);
-      final options = Options.parseOptions(argResults);
+      final options = parseOptions(argResults);
 
       Logger.root.level = options.logLevel;
       _logger.finest('Parsed arguments: $arguments');
@@ -52,4 +43,10 @@ class CliParser {
       exit(127);
     }
   }
+
+  @visibleForOverriding
+  ArgParser buildArgParser(PosixAdapter posixAdapter);
+
+  @visibleForOverriding
+  TOptions parseOptions(ArgResults argResults);
 }
