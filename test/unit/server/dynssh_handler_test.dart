@@ -88,9 +88,9 @@ void main() {
       const testMyIP = '12.23.34.45';
 
       testData<(String, int)>(
-        'disallows all methods except POST',
+        'disallows all methods except GET and POST',
         const [
-          ('GET', HttpStatus.methodNotAllowed),
+          ('GET', HttpStatus.unauthorized),
           ('PUT', HttpStatus.methodNotAllowed),
           ('DELETE', HttpStatus.methodNotAllowed),
           ('PATCH', HttpStatus.methodNotAllowed),
@@ -140,7 +140,7 @@ void main() {
               .thenReturnAsync(testApiKey);
 
           final request = FakeHttpRequest(
-            'POST',
+            'GET',
             Uri.https(
               '',
               '/dynssh/update',
@@ -187,7 +187,7 @@ void main() {
               .thenReturnAsync(false);
 
           final request = FakeHttpRequest(
-            'POST',
+            'GET',
             Uri.https(
               '',
               '/dynssh/update',
@@ -232,7 +232,7 @@ void main() {
               .thenReturnAsync(fixture.$1);
 
           final request = FakeHttpRequest(
-            'POST',
+            'GET',
             Uri.https(
               '',
               '/dynssh/update',

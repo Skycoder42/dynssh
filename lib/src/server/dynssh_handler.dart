@@ -20,6 +20,8 @@ final dynsshHandlerProvider = HttpHandlerProvider(
 // coverage:ignore-end
 
 class DynsshHandler implements HttpHandler {
+  static const _allowedMethods = ['GET', 'POST'];
+
   final Config _config;
   final DynsshController _dynsshController;
   final _logger = Logger('$DynsshHandler');
@@ -35,7 +37,10 @@ class DynsshHandler implements HttpHandler {
   Future<bool> call(HttpRequest request) async {
     assert(canHandle(request.uri));
 
-    if (request.method != 'POST') {
+    if (!_allowedMethods.contains(request.method)) {
+      _logger.warning(
+        'Rejecting ${request.method} request, only GET and POST are allowed',
+      );
       request.response.statusCode = HttpStatus.methodNotAllowed;
       request.response.writeln('This endpoint only accepts POST-Requests');
       await request.response.close();

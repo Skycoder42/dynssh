@@ -75,7 +75,7 @@ Host forbidden.test.dynssh.skycoder42.de
 
     Future<int> sendUpdateRequest({
       String? path,
-      bool post = true,
+      bool get = true,
       String? authHeader = testAuthHeader,
       Map<String, String>? query,
     }) async {
@@ -95,9 +95,9 @@ Host forbidden.test.dynssh.skycoder42.de
         if (authHeader != null) HttpHeaders.authorizationHeader: authHeader
       };
 
-      final response = post
-          ? await http.post(url, headers: headers)
-          : await http.get(url, headers: headers);
+      final response = get
+          ? await http.get(url, headers: headers)
+          : await http.put(url, headers: headers);
       return response.statusCode;
     }
 
@@ -114,7 +114,7 @@ Host forbidden.test.dynssh.skycoder42.de
 
     test('rejects invalid method with 405', () async {
       expect(
-        sendUpdateRequest(post: false),
+        sendUpdateRequest(get: false),
         completion(HttpStatus.methodNotAllowed),
       );
     });
