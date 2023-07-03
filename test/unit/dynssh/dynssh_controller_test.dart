@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_lambdas
 
+import 'dart:async';
+
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/dynssh/dynssh_controller.dart';
 import 'package:dynssh/src/models/host_update.dart';
@@ -76,6 +78,21 @@ void main() {
         hostname: 'test-hostname',
         ipAddress: '1.2.3.4',
       );
+
+      test('runs update synchronized', () async {
+        when(() => mockSshConfigParser.parse())
+            .thenReturnAsync(Completer<SshConfig>().future);
+
+        final f1 = sut.updateHost(testHostUpdate);
+        final f2 = sut.updateHost(testHostUpdate);
+
+        expect(f1, doesNotComplete);
+        expect(f2, doesNotComplete);
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        verify(() => mockSshConfigParser.parse()).called(1);
+      });
 
       test('rejects update if host config cannot be found', () async {
         when(() => mockSshConfig.findHost(any())).thenReturn(null);
