@@ -112,15 +112,18 @@ Host $testForbiddenHostname
       final response = get
           ? await http.get(url, headers: headers)
           : await http.put(url, headers: headers);
+
+      final responseBody = response.body.trim();
       try {
         return (
           response.statusCode,
-          ReturnCode.values.byName(response.body.trim())
+          ReturnCode.values.singleWhere((c) => c.raw == responseBody)
         );
 
         // ignore: avoid_catches_without_on_clauses
       } catch (e) {
         printOnFailure(e.toString());
+        printOnFailure('RESPONSE: $responseBody');
         return (response.statusCode, null);
       }
     }
