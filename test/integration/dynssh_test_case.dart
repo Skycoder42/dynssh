@@ -10,12 +10,13 @@ import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
 abstract base class DynsshTestCase {
+  static const _testHostname = 'test.dynssh.skycoder42.de';
+  static const _testUnauthorizedHostname = 'unauthorized.$_testHostname';
+  static const _testForbiddenHostname = 'forbidden.$_testHostname';
+  static const _testUnknownHostname = 'unknown.$_testHostname';
+  static const _testKeylessHostname = 'keyless.$_testHostname';
+
   void call() {
-    const testHostname = 'test.dynssh.skycoder42.de';
-    const testUnauthorizedHostname = 'unauthorized.$testHostname';
-    const testForbiddenHostname = 'forbidden.$testHostname';
-    const testUnknownHostname = 'unknown.$testHostname';
-    const testKeylessHostname = 'keyless.$testHostname';
     const testApiKey =
         'j8efu893pu8fsjifskjfo983u0f09ufe0suf093uf90uwu9eusfkdsf';
     const testAuthHeader =
@@ -47,11 +48,11 @@ abstract base class DynsshTestCase {
       await apiKeyFile.writeAsString(
         json.encode(
           const ApiKeyConfig({
-            testHostname: testApiKey,
-            testUnauthorizedHostname: 'invalid API key',
-            testUnknownHostname: testApiKey,
-            testKeylessHostname: testApiKey,
-            testForbiddenHostname: testApiKey,
+            _testHostname: testApiKey,
+            _testUnauthorizedHostname: 'invalid API key',
+            _testUnknownHostname: testApiKey,
+            _testKeylessHostname: testApiKey,
+            _testForbiddenHostname: testApiKey,
           }).toJson(),
         ),
       );
@@ -64,18 +65,8 @@ abstract base class DynsshTestCase {
         logLevel: Level.ALL,
       );
 
-      await File('${testOptions.sshDirectory}/config').writeAsString('''
-Host $testHostname
-    HostName ${getServerName()}
-    User ${Platform.environment['USER']}
-    IdentityFile ~/.ssh/id_ed25519
-
-Host $testKeylessHostname
-    HostName www.example.com
-
-Host $testForbiddenHostname
-    HostName aur.archlinux.org
-''');
+      await File('${testOptions.sshDirectory}/config')
+          .writeAsString(_createSshConfig(getServerName()));
 
       port = await runDynssh(testOptions);
       serverIp = await getServerIp();
@@ -100,7 +91,7 @@ Host $testForbiddenHostname
         path: path ?? '/dynssh/update',
         queryParameters: query ??
             <String, String>{
-              'hostname': testHostname,
+              'hostname': _testHostname,
               'myip': serverIp,
             },
       );
@@ -169,14 +160,14 @@ Host $testForbiddenHostname
 
     test('rejects valid hostname with invalid api key with 401', () async {
       expect(
-        sendUpdateRequest(query: const {'hostname': testUnauthorizedHostname}),
+        sendUpdateRequest(query: const {'hostname': _testUnauthorizedHostname}),
         completion((HttpStatus.unauthorized, ReturnCode.badAuth)),
       );
     });
 
     test('rejects query without ip address with 400', () async {
       expect(
-        sendUpdateRequest(query: const {'hostname': testHostname}),
+        sendUpdateRequest(query: const {'hostname': _testHostname}),
         completion((HttpStatus.badRequest, ReturnCode.notFqdn)),
       );
     });
@@ -185,7 +176,7 @@ Host $testForbiddenHostname
       expect(
         sendUpdateRequest(
           query: {
-            'hostname': testUnknownHostname,
+            'hostname': _testUnknownHostname,
             'myip': serverIp,
           },
           authHeader: testUnknownAuthHeader,
@@ -198,7 +189,7 @@ Host $testForbiddenHostname
       expect(
         sendUpdateRequest(
           query: {
-            'hostname': testKeylessHostname,
+            'hostname': _testKeylessHostname,
             'myip': serverIp,
           },
           authHeader: testKeylessAuthHeader,
@@ -211,7 +202,7 @@ Host $testForbiddenHostname
       expect(
         sendUpdateRequest(
           query: {
-            'hostname': testForbiddenHostname,
+            'hostname': _testForbiddenHostname,
             'myip': serverIp,
           },
           authHeader: testForbiddenAuthHeader,
@@ -230,15 +221,7 @@ Host $testForbiddenHostname
       expect(sshConfig.existsSync(), isTrue);
       expect(
         sshConfig.readAsString(),
-        completion('''
-Host test.dynssh.skycoder42.de
-    HostName $serverIp
-    User ${Platform.environment['USER']}
-    IdentityFile ~/.ssh/id_ed25519
-
-Host forbidden.test.dynssh.skycoder42.de
-    HostName aur.archlinux.org
-'''),
+        completion(_createSshConfig(serverIp)),
       );
     });
 
@@ -252,15 +235,7 @@ Host forbidden.test.dynssh.skycoder42.de
       expect(sshConfig.existsSync(), isTrue);
       expect(
         sshConfig.readAsString(),
-        completion('''
-Host test.dynssh.skycoder42.de
-    HostName $serverIp
-    User ${Platform.environment['USER']}
-    IdentityFile ~/.ssh/id_ed25519
-
-Host forbidden.test.dynssh.skycoder42.de
-    HostName aur.archlinux.org
-'''),
+        completion(_createSshConfig(serverIp)),
       );
     });
   }
@@ -277,4 +252,17 @@ Host forbidden.test.dynssh.skycoder42.de
   void _printLogRecord(LogRecord logRecord) =>
       // ignore: avoid_print
       print('${logRecord.time.toIso8601String()} $logRecord');
+
+  String _createSshConfig(String hostName) => '''
+Host $_testHostname
+  HostName $hostName
+  User ${Platform.environment['USER']}
+  IdentityFile ~/.ssh/id_ed25519
+
+Host $_testKeylessHostname
+  HostName www.example.com
+
+Host $_testForbiddenHostname
+  HostName aur.archlinux.org
+''';
 }
