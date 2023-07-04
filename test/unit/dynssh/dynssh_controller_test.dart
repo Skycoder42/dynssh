@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/dynssh/dynssh_controller.dart';
+import 'package:dynssh/src/dynssh/return_code.dart';
 import 'package:dynssh/src/models/host_update.dart';
 import 'package:dynssh/src/ssh/config/ssh_config.dart';
 import 'package:dynssh/src/ssh/config/ssh_config_host.dart';
@@ -99,11 +100,27 @@ void main() {
 
         final result = await sut.updateHost(testHostUpdate);
 
-        expect(result, isFalse);
+        expect(result, ReturnCode.noHost);
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
           () => mockSshConfig.findHost(testHostUpdate.hostname),
+        ]);
+      });
+
+      test('rejects update if host config has not changed', () async {
+        when(() => mockSshConfigHost['HostName'])
+            .thenReturn([testHostUpdate.ipAddress]);
+
+        final result = await sut.updateHost(testHostUpdate);
+
+        expect(result, ReturnCode.noChg);
+
+        verifyInOrder([
+          () => mockSshConfigParser.parse(),
+          () => mockSshConfig.findHost(testHostUpdate.hostname),
+          () => mockSshConfigHost['HostName'],
+          () => mockSshConfigHost['Port'],
         ]);
       });
 
@@ -114,7 +131,7 @@ void main() {
 
         final result = await sut.updateHost(testHostUpdate);
 
-        expect(result, isFalse);
+        expect(result, ReturnCode.noHost);
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
@@ -144,7 +161,7 @@ void main() {
 
         final result = await sut.updateHost(testHostUpdate);
 
-        expect(result, isFalse);
+        expect(result, ReturnCode.abuse);
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),
@@ -171,7 +188,7 @@ void main() {
 
         final result = await sut.updateHost(testHostUpdate);
 
-        expect(result, isTrue);
+        expect(result, ReturnCode.good);
 
         verifyInOrder([
           () => mockSshConfigParser.parse(),

@@ -8,6 +8,7 @@ import '../ssh/config/ssh_config_host.dart';
 import '../ssh/ssh_config_parser.dart';
 import '../ssh/ssh_keyscan.dart';
 import '../ssh/ssh_known_hosts_parser.dart';
+import 'return_code.dart';
 
 // coverage:ignore-start
 final dynsshControllerProvider = Provider(
@@ -36,7 +37,7 @@ class DynsshController {
     this._sshKeyscan,
   );
 
-  Future<bool> updateHost(HostUpdate hostUpdate) =>
+  Future<ReturnCode> updateHost(HostUpdate hostUpdate) =>
       _lock.synchronized(() async {
         _logger.info('Applying host update $hostUpdate...');
 
@@ -46,11 +47,15 @@ class DynsshController {
           _logger.warning(
             'Unable to find configuration for host: ${hostUpdate.hostname}',
           );
-          return false;
+          return ReturnCode.noHost;
         }
 
-        final (hostAddress, hostPort) = _getHostRecord(hostConfig, hostUpdate);
+        final (hostAddress, hostPort) = _getHostRecord(hostConfig);
         final hostLog = _hostLog(hostAddress, hostPort);
+        if (hostUpdate.ipAddress == hostAddress) {
+          _logger.info('Ignoring host update, IP address has not changed');
+          return ReturnCode.noChg;
+        }
 
         final knownHostKeys = await _sshKnownHostsParser.getHostKeys(
           hostAddress,
@@ -61,7 +66,7 @@ class DynsshController {
             'No known host keys saved for $hostLog. '
             'Unable to verify host update.',
           );
-          return false;
+          return ReturnCode.noHost;
         }
         _logHostKeys(hostLog, knownHostKeys);
 
@@ -81,7 +86,7 @@ class DynsshController {
             '${hostUpdate.ipAddress} do not match the saved keys of $hostLog! '
             'Rejecting update!',
           );
-          return false;
+          return ReturnCode.abuse;
         }
 
         hostConfig[_hostNameKey] = [hostUpdate.ipAddress];
@@ -94,13 +99,10 @@ class DynsshController {
         );
 
         _logger.info('Update successful!');
-        return true;
+        return ReturnCode.good;
       });
 
-  (String, int?) _getHostRecord(
-    SshConfigHost hostConfig,
-    HostUpdate hostUpdate,
-  ) {
+  (String, int?) _getHostRecord(SshConfigHost hostConfig) {
     final hostAddress =
         hostConfig[_hostNameKey]?.single ?? hostConfig.patterns.first;
     final hostPort =

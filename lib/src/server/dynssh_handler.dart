@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 
 import '../config/config.dart';
 import '../dynssh/dynssh_controller.dart';
+import '../dynssh/return_code.dart';
 import '../models/host_update.dart';
 import 'http_server.dart';
 
@@ -42,7 +43,6 @@ class DynsshHandler implements HttpHandler {
         'Rejecting ${request.method} request, only GET and POST are allowed',
       );
       request.response.statusCode = HttpStatus.methodNotAllowed;
-      request.response.writeln('This endpoint only accepts POST-Requests');
       await request.response.close();
       return true;
     }
@@ -61,21 +61,12 @@ class DynsshHandler implements HttpHandler {
         authHeader == null ||
         authHeader != expectedAuthHeader) {
       _logger.warning('Blocked request with invalid credentials for $hostname');
-      request.response.statusCode = HttpStatus.unauthorized;
-      request.response.writeln(
-        '${HttpHeaders.authorizationHeader} header is missing '
-        'or contains invalid credentials',
-      );
-      await request.response.close();
+      await _writeResponse(request, ReturnCode.badAuth);
       return true;
     }
 
     if (hostname == null || myIP == null) {
-      request.response.statusCode = HttpStatus.badRequest;
-      request.response
-        ..writeln('Invalid Query!')
-        ..writeln('"hostname" and "myip" must be provided!');
-      await request.response.close();
+      await _writeResponse(request, ReturnCode.notFqdn);
       return true;
     }
 
@@ -83,9 +74,7 @@ class DynsshHandler implements HttpHandler {
 
     _logger.finest('Request validation succeeded. Start host update');
     final updateResult = await _dynsshController.updateHost(hostUpdate);
-    request.response.statusCode =
-        updateResult ? HttpStatus.accepted : HttpStatus.forbidden;
-    await request.response.close();
+    await _writeResponse(request, updateResult);
     return true;
   }
 
@@ -105,5 +94,25 @@ class DynsshHandler implements HttpHandler {
     final authHeader = 'Basic $encodedSecret';
     _logger.finest('Expected ${HttpHeaders.authorizationHeader}: $authHeader');
     return authHeader;
+  }
+
+  Future<void> _writeResponse(
+    HttpRequest request,
+    ReturnCode returnCode,
+  ) async {
+    final httpStatusCode = switch (returnCode) {
+      ReturnCode.good => HttpStatus.ok,
+      ReturnCode.noChg => HttpStatus.ok,
+      ReturnCode.badAuth => HttpStatus.unauthorized,
+      ReturnCode.notFqdn => HttpStatus.badRequest,
+      ReturnCode.noHost => HttpStatus.badRequest,
+      ReturnCode.abuse => HttpStatus.badRequest,
+      ReturnCode.badAgent => HttpStatus.badRequest,
+      ReturnCode.dnsErr => HttpStatus.internalServerError,
+    };
+
+    request.response.statusCode = httpStatusCode;
+    request.response.writeln(returnCode.raw);
+    await request.response.close();
   }
 }

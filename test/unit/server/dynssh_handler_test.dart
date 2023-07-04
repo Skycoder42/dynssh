@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/config/config.dart';
 import 'package:dynssh/src/dynssh/dynssh_controller.dart';
+import 'package:dynssh/src/dynssh/return_code.dart';
 import 'package:dynssh/src/models/host_update.dart';
 import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:mocktail/mocktail.dart';
@@ -116,24 +117,36 @@ void main() {
         },
       );
 
-      testData<(String?, String?, int)>(
+      testData<(String?, String?, int, ReturnCode)>(
         'rejects requests with invalid API-credentials',
         const [
-          (null, null, HttpStatus.unauthorized),
-          (testHostname, null, HttpStatus.unauthorized),
-          (null, testAuthHeader, HttpStatus.unauthorized),
-          (testHostname, 'invalid-auth-header', HttpStatus.unauthorized),
+          (null, null, HttpStatus.unauthorized, ReturnCode.badAuth),
+          (testHostname, null, HttpStatus.unauthorized, ReturnCode.badAuth),
+          (null, testAuthHeader, HttpStatus.unauthorized, ReturnCode.badAuth),
+          (
+            testHostname,
+            'invalid-auth-header',
+            HttpStatus.unauthorized,
+            ReturnCode.badAuth
+          ),
           (
             testMissingHostname,
             testAuthHeader,
             HttpStatus.unauthorized,
+            ReturnCode.badAuth,
           ),
           (
             testInvalidHostname,
             testAuthHeader,
             HttpStatus.unauthorized,
+            ReturnCode.badAuth,
           ),
-          (testHostname, testAuthHeader, HttpStatus.badRequest),
+          (
+            testHostname,
+            testAuthHeader,
+            HttpStatus.badRequest,
+            ReturnCode.notFqdn,
+          ),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testHostname))
@@ -162,6 +175,7 @@ void main() {
           verifyInOrder([
             if (fixture.$1 != null) () => mockConfig.findApiKey(fixture.$1!),
             () => mockHttpResponse.statusCode = fixture.$3,
+            () => mockHttpResponse.writeln(fixture.$4.raw),
             () => mockHttpResponse.close(),
           ]);
           if (fixture.$1 == null) {
@@ -170,21 +184,27 @@ void main() {
         },
       );
 
-      testData<(String?, HostUpdate?, int)>(
+      testData<(String?, HostUpdate?, int, ReturnCode)>(
         'runs host update with given parameters, if valid',
         const [
-          (null, null, HttpStatus.badRequest),
+          (
+            null,
+            null,
+            HttpStatus.badRequest,
+            ReturnCode.notFqdn,
+          ),
           (
             testMyIP,
             HostUpdate(hostname: testHostname, ipAddress: testMyIP),
-            HttpStatus.forbidden,
+            HttpStatus.internalServerError,
+            ReturnCode.dnsErr,
           ),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testHostname))
               .thenReturnAsync(testApiKey);
           when(() => mockDynsshController.updateHost(any()))
-              .thenReturnAsync(false);
+              .thenReturnAsync(ReturnCode.dnsErr);
 
           final request = FakeHttpRequest(
             'GET',
@@ -211,6 +231,7 @@ void main() {
             if (fixture.$2 != null)
               () => mockDynsshController.updateHost(fixture.$2!),
             () => mockHttpResponse.statusCode = fixture.$3,
+            () => mockHttpResponse.writeln(fixture.$4.raw),
             () => mockHttpResponse.close(),
           ]);
           if (fixture.$1 == null) {
@@ -219,11 +240,17 @@ void main() {
         },
       );
 
-      testData<(bool, int)>(
+      testData<(ReturnCode, int)>(
         'sets result status based on host update result',
         const [
-          (false, HttpStatus.forbidden),
-          (true, HttpStatus.accepted),
+          (ReturnCode.good, HttpStatus.ok),
+          (ReturnCode.noChg, HttpStatus.ok),
+          (ReturnCode.badAuth, HttpStatus.unauthorized),
+          (ReturnCode.notFqdn, HttpStatus.badRequest),
+          (ReturnCode.noHost, HttpStatus.badRequest),
+          (ReturnCode.abuse, HttpStatus.badRequest),
+          (ReturnCode.badAgent, HttpStatus.badRequest),
+          (ReturnCode.dnsErr, HttpStatus.internalServerError),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(testHostname))
@@ -260,6 +287,7 @@ void main() {
                   ),
                 ),
             () => mockHttpResponse.statusCode = fixture.$2,
+            () => mockHttpResponse.writeln(fixture.$1.raw),
             () => mockHttpResponse.close(),
           ]);
         },
