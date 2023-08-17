@@ -97,7 +97,7 @@ abstract base class DynsshTestCase {
       );
 
       final headers = {
-        if (authHeader != null) HttpHeaders.authorizationHeader: authHeader
+        if (authHeader != null) HttpHeaders.authorizationHeader: authHeader,
       };
 
       final response = get
