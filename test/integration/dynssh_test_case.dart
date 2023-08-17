@@ -92,7 +92,7 @@ Host forbidden.test.dynssh.skycoder42.de
       );
 
       final headers = {
-        if (authHeader != null) HttpHeaders.authorizationHeader: authHeader
+        if (authHeader != null) HttpHeaders.authorizationHeader: authHeader,
       };
 
       final response = get
