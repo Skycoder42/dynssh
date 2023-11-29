@@ -16,7 +16,7 @@ jobs:
     with:
       imageName: skycoder42/dynssh
       version: ${{ inputs.version }}
-      dockerPlatforms: linux/amd64,linux/arm64,linux/arm/v7
+      dockerPlatforms: linux/amd64,linux/arm64 #,linux/arm/v7
     secrets:
       dockerHubUsername: ${{ secrets.dockerHubUsername }}
       dockerHubToken: ${{ secrets.dockerHubToken }}
