@@ -1,6 +1,6 @@
 name: dynssh
 description: A small server utility to dynamically update the SSH configuration for a remote host with dynamic IPs.
-version: 1.0.6
+version: 1.0.7
 publish_to: none
 
 environment:
