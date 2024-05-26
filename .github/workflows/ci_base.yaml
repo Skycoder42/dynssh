@@ -1,5 +1,8 @@
 on:
   workflow_call:
+    outputs:
+      enabledPlatforms:
+        value: ${{ jobs.ci.outputs.enabledPlatforms }}
 jobs:
   ci:
     name: CI

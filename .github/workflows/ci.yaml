@@ -21,6 +21,7 @@ jobs:
       contents: write
     with:
       buildRunner: true
+      enabledPlatforms: ${{ needs.ci.outputs.enabledPlatforms }}
 
   docker:
     name: Docker
