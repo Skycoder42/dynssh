@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 @TestOn('linux')
-library dynssh_docker_test;
+library;
 
 import 'dart:convert';
 import 'dart:io';
