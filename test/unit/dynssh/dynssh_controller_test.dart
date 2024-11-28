@@ -90,7 +90,7 @@ void main() {
         expect(f1, doesNotComplete);
         expect(f2, doesNotComplete);
 
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(seconds: 1));
 
         verify(() => mockSshConfigParser.parse()).called(1);
       });

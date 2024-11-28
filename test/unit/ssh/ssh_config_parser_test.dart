@@ -35,19 +35,20 @@ class TestSink extends StringBuffer implements IOSink {
       throw UnimplementedError();
 
   @override
-  Future addStream(Stream<List<int>> stream) => throw UnimplementedError();
+  Future<void> addStream(Stream<List<int>> stream) =>
+      throw UnimplementedError();
 
   @override
-  Future close() {
+  Future<void> close() {
     ++closed;
     return Future.value();
   }
 
   @override
-  Future get done => Future.value();
+  Future<void> get done => Future.value();
 
   @override
-  Future flush() {
+  Future<void> flush() {
     ++flushed;
     return Future.value();
   }

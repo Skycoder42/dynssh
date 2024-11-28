@@ -13,7 +13,8 @@ class _SignalInfo {
   const _SignalInfo(this.signal, this.callback);
 }
 
-final _signalProvider = ProviderFamily<StreamSubscription, _SignalInfo>(
+final _signalProvider =
+    ProviderFamily<StreamSubscription<ProcessSignal>, _SignalInfo>(
   (ref, arg) {
     final logger = Logger('signals.${arg.signal}');
     final sub = arg.signal.watch().listen(
