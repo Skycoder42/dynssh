@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../config/config.dart';
 import 'config/ssh_config.dart';
@@ -12,12 +13,13 @@ import 'config/ssh_config_host.dart';
 import 'config/ssh_config_option.dart';
 import 'config/ssh_config_section.dart';
 
+part 'ssh_config_parser.g.dart';
+
 // coverage:ignore-start
-final sshConfigParserProvider = Provider(
-  (ref) => SshConfigParser(
-    ref.watch(configProvider),
-  ),
-);
+@riverpod
+SshConfigParser sshConfigParser(Ref ref) => SshConfigParser(
+      ref.watch(configProvider),
+    );
 // coverage:ignore-end
 
 class SshConfigParser {

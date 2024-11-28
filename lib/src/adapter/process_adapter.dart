@@ -3,11 +3,13 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'process_adapter.g.dart';
 
 // coverage:ignore-start
-final processAdapterProvider = Provider(
-  (ref) => ProcessAdapter(stderr),
-);
+@riverpod
+ProcessAdapter processAdapter(Ref ref) => ProcessAdapter(stderr);
 // coverage:ignore-end
 
 class ProcessFailed implements Exception {

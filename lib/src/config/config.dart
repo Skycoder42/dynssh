@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../cli/options.dart';
 import '../models/api_key_config.dart';
 
+part 'config.g.dart';
+
 // coverage:ignore-start
-final configProvider = Provider(
-  (ref) => Config(),
-);
+@riverpod
+Config config(Ref ref) => Config();
 // coverage:ignore-end
 
 class Config {

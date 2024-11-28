@@ -1,0 +1,6 @@
+targets:
+  $default:
+    builders:
+      shelf_api_builder:
+        options:
+          generateClient: false

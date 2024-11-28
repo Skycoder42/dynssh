@@ -5,16 +5,16 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../adapter/posix_adapter.dart';
 import 'options.dart';
 
+part 'cli_parser.g.dart';
+
 // coverage:ignore-start
-final cliParserProvider = Provider(
-  (ref) => CliParser(
-    ref.watch(posixAdapterProvider),
-  ),
-);
+@riverpod
+CliParser cliParser(Ref ref) => CliParser(ref.watch(posixAdapterProvider));
 // coverage:ignore-end
 
 class CliParser {

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:synchronized/synchronized.dart';
 
 import '../models/host_update.dart';
@@ -10,14 +11,15 @@ import '../ssh/ssh_keyscan.dart';
 import '../ssh/ssh_known_hosts_parser.dart';
 import 'return_code.dart';
 
+part 'dynssh_controller.g.dart';
+
 // coverage:ignore-start
-final dynsshControllerProvider = Provider(
-  (ref) => DynsshController(
-    ref.watch(sshConfigParserProvider),
-    ref.watch(sshKnownHostsParserProvider),
-    ref.watch(sshKeyscanProvider),
-  ),
-);
+@riverpod
+DynsshController dynsshController(Ref ref) => DynsshController(
+      ref.watch(sshConfigParserProvider),
+      ref.watch(sshKnownHostsParserProvider),
+      ref.watch(sshKeyscanProvider),
+    );
 // coverage:ignore-end
 
 class DynsshController {

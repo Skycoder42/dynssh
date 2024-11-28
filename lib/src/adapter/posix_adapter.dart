@@ -2,11 +2,13 @@
 
 import 'package:posix/posix.dart' as posix;
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'posix_adapter.g.dart';
 
 // coverage:ignore-start
-final posixAdapterProvider = Provider(
-  (ref) => const PosixAdapter(),
-);
+@riverpod
+PosixAdapter posixAdapter(Ref ref) => const PosixAdapter();
 // coverage:ignore-end
 
 class PosixAdapter {

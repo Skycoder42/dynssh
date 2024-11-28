@@ -6,7 +6,8 @@ enum ReturnCode {
   noHost('nohost', false),
   abuse('abuse', false),
   badAgent('badagent', false),
-  dnsErr('dnserr', false);
+  dnsErr('dnserr', false),
+  $911('911', false);
 
   final String raw;
   final bool isSuccess;

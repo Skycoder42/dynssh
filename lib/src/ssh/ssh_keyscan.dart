@@ -1,15 +1,17 @@
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../adapter/process_adapter.dart';
 import 'ssh_known_hosts_parser.dart';
 
+part 'ssh_keyscan.g.dart';
+
 // coverage:ignore-start
-final sshKeyscanProvider = Provider(
-  (ref) => SshKeyscan(
-    ref.watch(processAdapterProvider),
-    ref.watch(sshKnownHostsParserProvider),
-  ),
-);
+@riverpod
+SshKeyscan sshKeyscan(Ref ref) => SshKeyscan(
+      ref.watch(processAdapterProvider),
+      ref.watch(sshKnownHostsParserProvider),
+    );
 // coverage:ignore-end
 
 class SshKeyscan {
