@@ -1,11 +1,13 @@
 import 'package:logging/logging.dart';
+import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 
 import '../../dynssh/dynssh_controller.dart';
 import '../../models/host_update.dart';
+import '../middlewares/dynssh_auth_middleware.dart';
 import '../middlewares/dynssh_return_code_middleware.dart';
 
-@ApiEndpoint('/dynssh')
+@ApiEndpoint('/dynssh', middleware: DynsshEndpoint.dynsshMiddleware)
 class DynsshEndpoint extends ShelfEndpoint {
   static const hostNameParameterKey = 'hostname';
 
@@ -35,4 +37,9 @@ class DynsshEndpoint extends ShelfEndpoint {
     @QueryParam(name: 'myip') required String myIP,
   }) =>
       update(hostname: hostName, myIP: myIP);
+
+  static Middleware dynsshMiddleware() => (handler) => const Pipeline()
+      .addMiddleware(dynsshReturnCode())
+      .addMiddleware(dynsshAuth())
+      .addHandler(handler);
 }

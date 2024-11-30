@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dynssh/src/cli/options.dart';
 import 'package:dynssh/src/config/config.dart';
-import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:dynssh/src/server/http_server.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:test/test.dart';
@@ -19,8 +18,7 @@ final class _DynsshCliTestCase extends DynsshTestCase {
 
     di.read(configProvider).initialize(testOptions);
 
-    final server = di.read(httpServerProvider)
-      ..registerHandler(dynsshHandlerProvider);
+    final server = di.read(httpServerProvider);
     await server.start(di);
     addTearDown(server.stop);
 

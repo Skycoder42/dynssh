@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dynssh/src/cli/cli_parser.dart';
 import 'package:dynssh/src/cli/signals.dart';
 import 'package:dynssh/src/config/config.dart';
-import 'package:dynssh/src/server/dynssh_handler.dart';
 import 'package:dynssh/src/server/http_server.dart';
 import 'package:logging/logging.dart';
 import 'package:riverpod/riverpod.dart';
@@ -25,8 +24,7 @@ Future<void> main(List<String> arguments) async {
 
     di.read(configProvider).initialize(options);
 
-    final server = di.read(httpServerProvider)
-      ..registerHandler(dynsshHandlerProvider);
+    final server = di.read(httpServerProvider);
     await server.start(di);
 
     // ignore: avoid_catches_without_on_clauses
