@@ -1,4 +1,5 @@
 import 'package:logging/logging.dart';
+import 'package:meta/meta.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 
@@ -13,7 +14,10 @@ class DynsshEndpoint extends ShelfEndpoint {
 
   final _logger = Logger('$DynsshEndpoint');
 
-  DynsshEndpoint(super.request);
+  DynsshEndpoint(
+    super.request, {
+    @visibleForTesting super.ref,
+  });
 
   @Post('/update')
   Future<TResponse<String>> update({
@@ -38,8 +42,8 @@ class DynsshEndpoint extends ShelfEndpoint {
   }) =>
       update(hostname: hostName, myIP: myIP);
 
-  static Middleware dynsshMiddleware() => (handler) => const Pipeline()
+  static Middleware dynsshMiddleware() => const Pipeline()
       .addMiddleware(dynsshReturnCode())
       .addMiddleware(dynsshAuth())
-      .addHandler(handler);
+      .middleware;
 }
