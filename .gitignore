@@ -23,6 +23,7 @@ doc/api/
 # Generated files
 *.freezed.dart
 *.g.dart
+*.api.dart
 
 # Others
 *.log

@@ -130,10 +130,10 @@ abstract base class DynsshTestCase {
       );
     });
 
-    test('rejects invalid method with 405', () async {
+    test('rejects invalid method with 404', () async {
       expect(
         sendUpdateRequest(get: false),
-        completion((HttpStatus.methodNotAllowed, null)),
+        completion((HttpStatus.notFound, null)),
       );
     });
 
@@ -144,10 +144,10 @@ abstract base class DynsshTestCase {
       );
     });
 
-    test('rejects missing hostname with 401', () async {
+    test('rejects missing hostname with 400', () async {
       expect(
         sendUpdateRequest(query: const {}),
-        completion((HttpStatus.unauthorized, ReturnCode.badAuth)),
+        completion((HttpStatus.badRequest, ReturnCode.notFqdn)),
       );
     });
 

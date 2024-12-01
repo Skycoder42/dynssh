@@ -32,7 +32,7 @@ class DynsshEndpoint extends ShelfEndpoint {
   }
 
   @Get('/update')
-  Future<void> updateViaGet({
+  Future<TResponse<String>> updateViaGet({
     @QueryParam(name: hostNameParameterKey) required String hostName,
     @QueryParam(name: 'myip') required String myIP,
   }) =>

@@ -47,9 +47,9 @@ class DynsshReturnCodeMiddleware {
           }
 
           return switch (response.statusCode) {
-            < 400 => ReturnCode.good.toResponse(),
-            < 500 => ReturnCode.badAuth.toResponse(),
-            _ => ReturnCode.$911.toResponse(),
+            400 => ReturnCode.notFqdn.toResponse(),
+            >= 500 => ReturnCode.$911.toResponse(),
+            _ => response,
           };
           // ignore: avoid_catches_without_on_clauses
         } catch (e, s) {
