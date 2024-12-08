@@ -19,7 +19,11 @@ class DynsshAuthMiddleware {
 
   DynsshAuthMiddleware();
 
-  Handler call(Handler next) => (request) async {
+  Handler call(
+    Handler next, {
+    @visibleForTesting EndpointRef? refForTesting,
+  }) =>
+      (request) async {
         final hostname =
             request.url.queryParameters[DynsshEndpoint.hostNameParameterKey];
         final authHeader = request.headers[HttpHeaders.authorizationHeader];
@@ -33,11 +37,19 @@ class DynsshAuthMiddleware {
           return ReturnCode.notFqdn.toResponse();
         }
 
-        final expectedAuthHeader =
-            await _buildExpectedAuthHeader(request, hostname);
-        if (expectedAuthHeader == null ||
-            authHeader == null ||
-            authHeader != expectedAuthHeader) {
+        if (authHeader == null) {
+          _logger.warning(
+            'Blocked request with missing credentials for $hostname',
+          );
+          return ReturnCode.badAuth.toResponse();
+        }
+
+        final expectedAuthHeader = await _buildExpectedAuthHeader(
+          refForTesting ?? request.ref,
+          request,
+          hostname,
+        );
+        if (expectedAuthHeader == null || authHeader != expectedAuthHeader) {
           _logger.warning(
             'Blocked request with invalid credentials for $hostname',
           );
@@ -48,10 +60,11 @@ class DynsshAuthMiddleware {
       };
 
   Future<String?> _buildExpectedAuthHeader(
+    EndpointRef ref,
     Request request,
     String hostname,
   ) async {
-    final config = request.ref.read(configProvider);
+    final config = ref.read(configProvider);
 
     final apiKey = await config.findApiKey(hostname);
     if (apiKey == null) {

@@ -12,26 +12,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:test/test.dart';
 
-abstract interface class TestHttpHandler implements HttpHandler {
-  bool canHandle(Uri url);
-}
-
-class MockHttpHandler extends Mock implements TestHttpHandler {}
-
 class MockConfig extends Mock implements Config {}
-
-class FakeHttpRequest extends Fake implements HttpRequest {}
 
 void main() {
   setUpAll(() {
     registerFallbackValue(Uri());
-    registerFallbackValue(FakeHttpRequest());
   });
 
   group('$HttpServer', () {
     final mockConfig = MockConfig();
-    final mockHandler1 = MockHttpHandler();
-    final mockHandler2 = MockHttpHandler();
 
     late ProviderContainer di;
     late HttpServer sut;
@@ -44,30 +33,13 @@ void main() {
 
     setUp(() {
       reset(mockConfig);
-      reset(mockHandler1);
-      reset(mockHandler2);
 
       di = ProviderContainer();
 
-      final handlerProvider1 = HttpHandlerProvider(
-        (ref) => mockHandler1,
-        canHandle: mockHandler1.canHandle,
-        name: 'mockHandler1',
-      );
-      final handlerProvider2 = HttpHandlerProvider(
-        (ref) => mockHandler2,
-        canHandle: mockHandler2.canHandle,
-        name: 'mockHandler2',
-      );
-
       when(() => mockConfig.host).thenReturn(InternetAddress.loopbackIPv4);
       when(() => mockConfig.port).thenReturn(0);
-      when(() => mockHandler1.canHandle(any())).thenReturn(false);
-      when(() => mockHandler2.canHandle(any())).thenReturn(false);
 
-      sut = HttpServer(mockConfig)
-        ..registerHandler(handlerProvider1)
-        ..registerHandler(handlerProvider2);
+      sut = HttpServer(mockConfig);
     });
 
     tearDown(() async {
