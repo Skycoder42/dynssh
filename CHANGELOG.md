@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Replace custom HTTP server implementation with `shelf` and `shelf_api`
+- Migrate to generated riverpod
+- Updated min dart sdk to 3.6.0
+- Updated dependencies
+
 ## [1.0.9] - 2024-08-22
 ### Changed
 - Updated min dart sdk to 3.5.0
@@ -56,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial pre-release
 
+[Unreleased]: https://github.com/Skycoder42/dynssh/compare/v1.0.9...vHEAD
 [1.0.9]: https://github.com/Skycoder42/dynssh/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/Skycoder42/dynssh/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/Skycoder42/dynssh/compare/v1.0.6...v1.0.7
