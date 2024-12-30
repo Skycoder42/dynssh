@@ -11,3 +11,4 @@ build/
 
 **/*.freezed.dart
 **/*.g.dart
+**/*.api.dart
