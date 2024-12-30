@@ -1,26 +1,34 @@
 // ignore_for_file: discarded_futures
 
-import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/config/config.dart';
+import 'package:dynssh/src/server/dynssh_api.api.dart';
+import 'package:dynssh/src/server/dynssh_api.dart';
 import 'package:dynssh/src/server/http_server.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
 class MockConfig extends Mock implements Config {}
 
+class MockDynsshApi extends Mock implements DynsshApi {}
+
+class FakeRequest extends Fake implements Request {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(Uri());
+    registerFallbackValue(FakeRequest());
   });
 
   group('$HttpServer', () {
     final mockConfig = MockConfig();
+    final mockDynsshApi = MockDynsshApi();
 
     late ProviderContainer di;
     late HttpServer sut;
@@ -33,11 +41,19 @@ void main() {
 
     setUp(() {
       reset(mockConfig);
+      reset(mockDynsshApi);
 
-      di = ProviderContainer();
+      di = ProviderContainer(
+        overrides: [
+          configProvider.overrideWithValue(mockConfig),
+          dynsshApiProvider.overrideWithValue(mockDynsshApi),
+        ],
+      );
 
       when(() => mockConfig.host).thenReturn(InternetAddress.loopbackIPv4);
       when(() => mockConfig.port).thenReturn(0);
+
+      when(() => mockDynsshApi(any())).thenReturn(Response.notFound(null));
 
       sut = HttpServer(mockConfig);
     });
@@ -52,9 +68,9 @@ void main() {
         await sut.start(di);
 
         expect(
-          get(testBaseUrl()),
+          http.get(testBaseUrl()),
           completion(
-            isA<Response>().having(
+            isA<http.Response>().having(
               (m) => m.statusCode,
               'statusCode',
               HttpStatus.notFound,
@@ -74,9 +90,9 @@ void main() {
 
           expect(sut.port, testPort);
           expect(
-            get(testBaseUrl()),
+            http.get(testBaseUrl()),
             completion(
-              isA<Response>().having(
+              isA<http.Response>().having(
                 (m) => m.statusCode,
                 'statusCode',
                 HttpStatus.notFound,
@@ -90,7 +106,7 @@ void main() {
         'starts http server on specific IP',
         onPlatform: const {
           'mac-os': Skip(
-            'User other IPs then 127.0.0.1 is not supported on macos.',
+            'User other IPs than 127.0.0.1 is not supported on macos.',
           ),
         },
         () async {
@@ -99,13 +115,13 @@ void main() {
           await sut.start(di);
 
           expect(
-            get(testBaseUrl()),
+            http.get(testBaseUrl()),
             throwsA(isA<SocketException>()),
           );
           expect(
-            get(testBaseUrl().replace(host: '127.1.2.3')),
+            http.get(testBaseUrl().replace(host: '127.1.2.3')),
             completion(
-              isA<Response>().having(
+              isA<http.Response>().having(
                 (m) => m.statusCode,
                 'statusCode',
                 HttpStatus.notFound,
@@ -131,7 +147,7 @@ void main() {
           await sut.stop(force: fixture);
 
           expect(
-            get(testUrl),
+            http.get(testUrl),
             throwsA(isA<SocketException>()),
           );
         },
@@ -139,131 +155,28 @@ void main() {
     });
 
     group('handleRequest', () {
-      const handler1Path = '/handle/1';
-      const handler2Path = '/handle/2';
-
       setUp(() async {
-        when(() => mockHandler1.canHandle(any())).thenAnswer((i) {
-          final url = i.positionalArguments[0] as Uri;
-          return url.path == handler1Path;
-        });
-        when(() => mockHandler2.canHandle(any())).thenAnswer((i) {
-          final url = i.positionalArguments[0] as Uri;
-          return url.path == handler2Path;
-        });
-
-        when(() => mockHandler1.call(any())).thenReturnAsync(true);
-        when(() => mockHandler2.call(any())).thenReturnAsync(true);
-
         await sut.start(di);
       });
 
-      tearDown(() {
-        verifyNoMoreInteractions(mockHandler1);
-        verifyNoMoreInteractions(mockHandler2);
-      });
+      test('returns response of dynssh api', () async {
+        when(() => mockDynsshApi(any())).thenReturn(Response.ok('test'));
 
-      test('returns 404 if no handler can handle the request', () async {
         await expectLater(
-          get(testBaseUrl()),
+          http.get(testBaseUrl()),
           completion(
-            isA<Response>().having(
-              (m) => m.statusCode,
-              'statusCode',
-              HttpStatus.notFound,
-            ),
+            isA<http.Response>()
+                .having(
+                  (m) => m.statusCode,
+                  'statusCode',
+                  HttpStatus.ok,
+                )
+                .having((m) => m.body, 'body', 'test'),
           ),
         );
 
-        verifyInOrder([
-          () => mockHandler1.canHandle(Uri(path: '/')),
-          () => mockHandler2.canHandle(Uri(path: '/')),
-        ]);
-      });
-
-      test('returns 404 if no handler accepted the request', () async {
-        when(() => mockHandler1.canHandle(any())).thenReturn(true);
-        when(() => mockHandler2.canHandle(any())).thenReturn(true);
-
-        when(() => mockHandler1.call(any())).thenReturnAsync(false);
-        when(() => mockHandler2.call(any())).thenReturnAsync(false);
-
-        await expectLater(
-          get(testBaseUrl()),
-          completion(
-            isA<Response>().having(
-              (m) => m.statusCode,
-              'statusCode',
-              HttpStatus.notFound,
-            ),
-          ),
-        );
-
-        verifyInOrder([
-          () => mockHandler1.canHandle(Uri(path: '/')),
-          () => mockHandler1.call(any()),
-          () => mockHandler2.canHandle(Uri(path: '/')),
-          () => mockHandler2.call(any()),
-        ]);
-      });
-
-      test('only applies first matching handler', () async {
-        when(() => mockHandler1.canHandle(any())).thenReturn(true);
-        when(() => mockHandler2.canHandle(any())).thenReturn(true);
-
-        when(() => mockHandler2.call(any())).thenReturnAsync(true);
-        mockResponse(mockHandler1, (request, response) async {
-          response.statusCode = HttpStatus.ok;
-          await response.close();
-          return true;
-        });
-
-        await expectLater(
-          get(testBaseUrl()),
-          completion(
-            isA<Response>().having(
-              (m) => m.statusCode,
-              'statusCode',
-              HttpStatus.ok,
-            ),
-          ),
-        );
-
-        verifyInOrder([
-          () => mockHandler1.canHandle(Uri(path: '/')),
-          () => mockHandler1.call(any()),
-        ]);
-      });
-
-      test('returns 500 if handler throws', () async {
-        when(() => mockHandler1.canHandle(any())).thenReturn(true);
-        when(() => mockHandler1.call(any())).thenThrow(Exception('error'));
-
-        await expectLater(
-          get(testBaseUrl()),
-          completion(
-            isA<Response>().having(
-              (m) => m.statusCode,
-              'statusCode',
-              HttpStatus.internalServerError,
-            ),
-          ),
-        );
-
-        verifyInOrder([
-          () => mockHandler1.canHandle(Uri(path: '/')),
-          () => mockHandler1.call(any()),
-        ]);
+        verify(() => mockDynsshApi(any(that: isA<Request>()))).called(1);
       });
     });
   });
 }
-
-void mockResponse(
-  MockHttpHandler handler,
-  FutureOr<bool> Function(HttpRequest request, HttpResponse response) handle,
-) =>
-    when(() => handler.call(any())).thenAnswer((i) async {
-      final request = i.positionalArguments.first as HttpRequest;
-      return await handle(request, request.response);
-    });

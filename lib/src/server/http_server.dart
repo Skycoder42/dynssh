@@ -8,7 +8,7 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_api/shelf_api.dart';
 
 import '../config/config.dart';
-import 'dynssh_api.api.dart';
+import 'dynssh_api.dart';
 
 // coverage:ignore-start
 final httpServerProvider = Provider<HttpServer>(
@@ -63,36 +63,35 @@ class HttpServer {
 
   Handler get _requestHandler => const Pipeline()
       .addMiddleware(handleFormatExceptions())
-      .maybeAddMiddleware(_handleSeverError())
+      .debugAddMiddleware(_handleSeverError())
       .addMiddleware(logRequests(logger: _logRequest))
       .addMiddleware(rivershelfContainer(_di))
-      .addHandler(DynsshApi().call);
+      .addHandler(_di.read(dynsshApiProvider).call);
 
   void _logRequest(String message, bool isError) =>
       isError ? _logger.severe(message) : _logger.fine(message);
 
-  Middleware? _handleSeverError() {
-    Middleware? middleware;
-    assert(() {
-      middleware = (next) => (request) async {
-            try {
-              return await next(request);
-              // ignore: avoid_catches_without_on_clauses
-            } catch (e, s) {
-              final buffer = StringBuffer()
-                ..writeln(e)
-                ..writeln()
-                ..writeln(s);
-              return Response.internalServerError(body: buffer.toString());
-            }
-          };
-      return true;
-    }());
-    return middleware;
-  }
+  Middleware _handleSeverError() => (next) => (request) async {
+        try {
+          return await next(request);
+          // ignore: avoid_catches_without_on_clauses
+        } catch (e, s) {
+          final buffer = StringBuffer()
+            ..writeln(e)
+            ..writeln()
+            ..writeln(s);
+          return Response.internalServerError(body: buffer.toString());
+        }
+      };
 }
 
 extension on Pipeline {
-  Pipeline maybeAddMiddleware(Middleware? middleware) =>
-      middleware != null ? addMiddleware(middleware) : this;
+  Pipeline debugAddMiddleware(Middleware middleware) {
+    var result = this;
+    assert(() {
+      result = addMiddleware(middleware);
+      return true;
+    }());
+    return result;
+  }
 }

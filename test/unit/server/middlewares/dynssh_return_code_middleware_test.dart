@@ -37,7 +37,7 @@ void main() {
         (ReturnCode.dnsErr, HttpStatus.internalServerError),
         (ReturnCode.$911, HttpStatus.internalServerError),
       ],
-      (fixture) {
+      (fixture) async {
         final response = fixture.$1.toResponse();
         expect(response.statusCode, fixture.$2);
         expect(response.readAsString(), completion(fixture.$1.raw));
