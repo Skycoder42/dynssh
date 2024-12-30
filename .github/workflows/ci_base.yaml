@@ -13,6 +13,7 @@ jobs:
       coverageExclude: >-
         "**/*.freezed.dart"
         "**/*.g.dart"
+        "**/*.api.dart"
       integrationTestPaths: -P integration
       integrationTestSetup: >-
         {
