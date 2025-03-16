@@ -94,8 +94,9 @@ void main() {
         _configTestData.map((t) => (t.read, t.config)),
         (fixture) async {
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(() => mockSshConfigFile.openRead())
-              .thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(
+            () => mockSshConfigFile.openRead(),
+          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
 
           final result = await sut.parse();
 
@@ -133,8 +134,9 @@ void main() {
         (fixture) async {
           final testSink = TestSink();
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(() => mockSshConfigFile.openRead())
-              .thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(
+            () => mockSshConfigFile.openRead(),
+          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
           when(() => mockSshConfigFile.openWrite()).thenReturn(testSink);
 
           final config = await sut.parse();
@@ -152,8 +154,9 @@ void main() {
         (fixture) async {
           final testSink = TestSink();
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(() => mockSshConfigFile.openRead())
-              .thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(
+            () => mockSshConfigFile.openRead(),
+          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
           when(() => mockSshConfigFile.openWrite()).thenReturn(testSink);
 
           final config = await sut.parse();
@@ -195,16 +198,14 @@ Matcher _sshConfigEquals(SshConfig config) => isA<SshConfig>()
       orderedEquals(config.hosts.map(_sshHostEquals)),
     );
 
-Matcher _sshGlobalsEquals(SshConfigGlobals globals) => allOf(
-      isA<SshConfigGlobals>(),
-      _sshConfigSectionEquals(globals),
-    );
+Matcher _sshGlobalsEquals(SshConfigGlobals globals) =>
+    allOf(isA<SshConfigGlobals>(), _sshConfigSectionEquals(globals));
 
 Matcher _sshHostEquals(SshConfigHost host) => allOf(
-      isA<SshConfigHost>(),
-      _sshOptionEquals(host),
-      _sshConfigSectionEquals(host),
-    );
+  isA<SshConfigHost>(),
+  _sshOptionEquals(host),
+  _sshConfigSectionEquals(host),
+);
 
 Matcher _sshConfigSectionEquals(SshConfigSection section) =>
     isA<SshConfigSection>().having(
@@ -221,10 +222,10 @@ Matcher _sshCommentEquals(SshConfigComment comment) => isA<SshConfigComment>()
     .having((m) => m.comment, 'comment', comment.comment);
 
 Matcher _sshEntryEquals(SshConfigEntry entry) => switch (entry) {
-      SshConfigOption() => _sshOptionEquals(entry),
-      SshConfigComment() => _sshCommentEquals(entry),
-      _ => isNot(anything)
-    };
+  SshConfigOption() => _sshOptionEquals(entry),
+  SshConfigComment() => _sshCommentEquals(entry),
+  _ => isNot(anything),
+};
 
 const _testHost = 'host1.example.com';
 final _configTestData = [
@@ -337,32 +338,29 @@ Key5 Value5
         SshConfigComment.empty(),
       ]),
       [
-        SshConfigHost([
-          _testHost,
-        ], [
-          SshConfigOption('Key1', ['Value1']),
-          SshConfigOption('Key2', ['Value21']),
-        ]),
-        SshConfigHost([
-          'host2',
-          'host3',
-        ], [
-          SshConfigOption('Key2', ['Value22']),
-          SshConfigComment('Host host23'),
-          SshConfigOption('Key3', ['Value3']),
-          SshConfigComment.empty(),
-        ]),
         SshConfigHost(
+          [_testHost],
           [
-            'host4',
+            SshConfigOption('Key1', ['Value1']),
+            SshConfigOption('Key2', ['Value21']),
           ],
-          [],
         ),
-        SshConfigHost([
-          'host5',
-        ], [
-          SshConfigOption('Key5', ['Value5']),
-        ]),
+        SshConfigHost(
+          ['host2', 'host3'],
+          [
+            SshConfigOption('Key2', ['Value22']),
+            SshConfigComment('Host host23'),
+            SshConfigOption('Key3', ['Value3']),
+            SshConfigComment.empty(),
+          ],
+        ),
+        SshConfigHost(['host4'], []),
+        SshConfigHost(
+          ['host5'],
+          [
+            SshConfigOption('Key5', ['Value5']),
+          ],
+        ),
       ],
     ),
     write: '''

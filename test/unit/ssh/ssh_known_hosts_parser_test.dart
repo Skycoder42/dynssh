@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: unnecessary_lambdas, discarded_futures
 
 import 'dart:convert';
 import 'dart:io';
@@ -38,11 +38,7 @@ void main() {
           (['$testHost type'], false, {}),
           (['$testHost type key'], false, {'type': 'key'}),
           (['$testHost type key extra'], false, {'type': 'key extra'}),
-          (
-            ['$testHost type key   extra'],
-            false,
-            {'type': 'key   extra'},
-          ),
+          (['$testHost type key   extra'], false, {'type': 'key   extra'}),
           (['other.$testHost type key'], false, {}),
           (['$testHost type key'], true, {}),
           (['$testHost:$testPort type key'], true, {}),
@@ -56,11 +52,7 @@ void main() {
               '$testHost typeC key3',
             ],
             false,
-            {
-              'typeA': 'key1',
-              'typeB': 'key2',
-              'typeC': 'key3',
-            },
+            {'typeA': 'key1', 'typeB': 'key2', 'typeC': 'key3'},
           ),
           (
             [
@@ -72,7 +64,7 @@ void main() {
             {'typeA': 'key1'},
           ),
         ],
-        (fixture) async {
+        (fixture) {
           expect(
             sut.getHostKeysFromLines(
               Stream.fromIterable(fixture.$1),
@@ -122,8 +114,9 @@ other.$testHost typeC key3
 ''';
 
         when(() => mockSshKnownHostsFile.existsSync()).thenReturn(true);
-        when(() => mockSshKnownHostsFile.openRead())
-            .thenStream(Stream.value(utf8.encode(testContent)));
+        when(
+          () => mockSshKnownHostsFile.openRead(),
+        ).thenStream(Stream.value(utf8.encode(testContent)));
 
         final result = await sut.getHostKeys(testHost);
 
@@ -146,12 +139,13 @@ other.$testHost typeC key3
 
       final mockSshKnownHostsFile = MockFile();
 
-      setUp(() async {
+      setUp(() {
         reset(mockSshKnownHostsFile);
 
         when(() => mockSshKnownHostsFile.path).thenReturn('path');
-        when(() => mockSshKnownHostsFile.writeAsString(any()))
-            .thenReturnAsync(mockSshKnownHostsFile);
+        when(
+          () => mockSshKnownHostsFile.writeAsString(any()),
+        ).thenReturnAsync(mockSshKnownHostsFile);
 
         when(() => mockConfig.sshFile(any())).thenReturn(mockSshKnownHostsFile);
       });
@@ -159,10 +153,7 @@ other.$testHost typeC key3
       test('does nothing if file does not exist', () async {
         when(() => mockSshKnownHostsFile.existsSync()).thenReturn(false);
 
-        await sut.replaceHost(
-          oldHost: testHost,
-          newHost: newHost,
-        );
+        await sut.replaceHost(oldHost: testHost, newHost: newHost);
 
         verifyInOrder([
           () => mockConfig.sshFile('known_hosts'),
@@ -183,7 +174,7 @@ other.$testHost typeC key3
           (
             '[$testHost]:$testPort type key',
             true,
-            '[$newHost]:$newPort type key'
+            '[$newHost]:$newPort type key',
           ),
           ('$testHost type key', true, null),
           ('[$testHost]:$testPort type key', false, null),
@@ -202,7 +193,7 @@ $newHost typeA key1
 other.$testHost typeB key2
 $testHost.other typeC key3
 $newHost typeD key4
-'''
+''',
           ),
           (
             '''
@@ -215,13 +206,14 @@ $testHost typeB key2
 [$newHost]:$newPort typeA key1
 $testHost typeB key2
 [$newHost]:$newPort typeC key3
-'''
+''',
           ),
         ],
         (fixture) async {
           when(() => mockSshKnownHostsFile.existsSync()).thenReturn(true);
-          when(() => mockSshKnownHostsFile.readAsString())
-              .thenReturnAsync(fixture.$1);
+          when(
+            () => mockSshKnownHostsFile.readAsString(),
+          ).thenReturnAsync(fixture.$1);
 
           await sut.replaceHost(
             oldHost: testHost,

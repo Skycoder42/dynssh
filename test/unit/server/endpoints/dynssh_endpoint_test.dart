@@ -31,20 +31,22 @@ void main() {
 
     late DynsshEndpoint sut;
 
-    setUp(() async {
+    setUp(() {
       reset(mockDynsshController);
       reset(mockRequest);
       reset(mockEndpointRef);
 
-      when(() => mockEndpointRef.read(dynsshControllerProvider))
-          .thenReturn(mockDynsshController);
+      when(
+        () => mockEndpointRef.read(dynsshControllerProvider),
+      ).thenReturn(mockDynsshController);
 
       sut = DynsshEndpoint(mockRequest, ref: mockEndpointRef);
     });
 
     test('update runs host update with given parameters, if valid', () async {
-      when(() => mockDynsshController.updateHost(any()))
-          .thenReturnAsync(ReturnCode.dnsErr);
+      when(
+        () => mockDynsshController.updateHost(any()),
+      ).thenReturnAsync(ReturnCode.dnsErr);
 
       final result = await sut.update(hostname: testHostname, myIP: testMyIP);
 
@@ -58,21 +60,24 @@ void main() {
       ).called(1);
     });
 
-    test('updateViaGet runs host update with given parameters, if valid',
-        () async {
-      when(() => mockDynsshController.updateHost(any()))
-          .thenReturnAsync(ReturnCode.noChg);
+    test(
+      'updateViaGet runs host update with given parameters, if valid',
+      () async {
+        when(
+          () => mockDynsshController.updateHost(any()),
+        ).thenReturnAsync(ReturnCode.noChg);
 
-      final result = await sut.update(hostname: testHostname, myIP: testMyIP);
+        final result = await sut.update(hostname: testHostname, myIP: testMyIP);
 
-      expect(result.statusCode, 200);
-      expect(result.readAsString(), completion(ReturnCode.noChg.raw));
+        expect(result.statusCode, 200);
+        expect(result.readAsString(), completion(ReturnCode.noChg.raw));
 
-      verify(
-        () => mockDynsshController.updateHost(
-          const HostUpdate(hostname: testHostname, ipAddress: testMyIP),
-        ),
-      ).called(1);
-    });
+        verify(
+          () => mockDynsshController.updateHost(
+            const HostUpdate(hostname: testHostname, ipAddress: testMyIP),
+          ),
+        ).called(1);
+      },
+    );
   });
 }

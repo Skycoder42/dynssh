@@ -16,10 +16,10 @@ part 'dynssh_controller.g.dart';
 // coverage:ignore-start
 @riverpod
 DynsshController dynsshController(Ref ref) => DynsshController(
-      ref.watch(sshConfigParserProvider),
-      ref.watch(sshKnownHostsParserProvider),
-      ref.watch(sshKeyscanProvider),
-    );
+  ref.watch(sshConfigParserProvider),
+  ref.watch(sshKnownHostsParserProvider),
+  ref.watch(sshKeyscanProvider),
+);
 // coverage:ignore-end
 
 class DynsshController {
@@ -107,8 +107,10 @@ class DynsshController {
   (String, int?) _getHostRecord(SshConfigHost hostConfig) {
     final hostAddress =
         hostConfig[_hostNameKey]?.single ?? hostConfig.patterns.first;
-    final hostPort =
-        int.tryParse(hostConfig[_portKey]?.single ?? '', radix: 10);
+    final hostPort = int.tryParse(
+      hostConfig[_portKey]?.single ?? '',
+      radix: 10,
+    );
     return (hostAddress, hostPort);
   }
 

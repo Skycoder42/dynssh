@@ -14,21 +14,16 @@ class _SignalInfo {
 }
 
 final _signalProvider =
-    ProviderFamily<StreamSubscription<ProcessSignal>, _SignalInfo>(
-  (ref, arg) {
-    final logger = Logger('signals.${arg.signal}');
-    final sub = arg.signal.watch().listen(
-      (signal) {
+    ProviderFamily<StreamSubscription<ProcessSignal>, _SignalInfo>((ref, arg) {
+      final logger = Logger('signals.${arg.signal}');
+      final sub = arg.signal.watch().listen((signal) {
         // ignore: avoid_print
         logger.finer('signal received! - closing application');
         arg.callback();
-      },
-      cancelOnError: true,
-    );
-    ref.onDispose(sub.cancel);
-    return sub;
-  },
-);
+      }, cancelOnError: true);
+      ref.onDispose(sub.cancel);
+      return sub;
+    });
 
 extension ProviderContainerX on ProviderContainer {
   void registerTerminationFor(ProcessSignal signal) {

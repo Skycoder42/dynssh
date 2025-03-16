@@ -38,12 +38,13 @@ void main() {
 
     late Handler sut;
 
-    setUp(() async {
+    setUp(() {
       reset(mockConfig);
       reset(mockHandler);
       reset(mockRequest);
       reset(mockEndpointRef);
 
+      // ignore: discarded_futures
       when(() => mockHandler(any())).thenReturn(ReturnCode.good.toResponse());
       when(() => mockEndpointRef.read(configProvider)).thenReturn(mockConfig);
 
@@ -75,28 +76,20 @@ void main() {
             testHostname,
             testInvalidAuthHeader,
             HttpStatus.unauthorized,
-            ReturnCode.badAuth
+            ReturnCode.badAuth,
           ),
-          (
-            testHostname,
-            testAuthHeader,
-            HttpStatus.ok,
-            ReturnCode.good,
-          ),
+          (testHostname, testAuthHeader, HttpStatus.ok, ReturnCode.good),
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(any())).thenReturnAsync(null);
-          when(() => mockConfig.findApiKey(testHostname))
-              .thenReturnAsync(testApiKey);
+          when(
+            () => mockConfig.findApiKey(testHostname),
+          ).thenReturnAsync(testApiKey);
 
           when(() => mockRequest.url).thenReturn(
-            Uri.https(
-              '',
-              '/dynssh/update',
-              <String, String>{
-                if (fixture.$1 != null) 'hostname': fixture.$1!,
-              },
-            ),
+            Uri.https('', '/dynssh/update', <String, String>{
+              if (fixture.$1 != null) 'hostname': fixture.$1!,
+            }),
           );
           when(() => mockRequest.headers).thenReturn({
             if (fixture.$2 != null)

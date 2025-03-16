@@ -38,23 +38,23 @@ class DynsshReturnCodeMiddleware {
   final _logger = Logger('$DynsshReturnCodeMiddleware');
 
   Handler call(Handler next) => (request) async {
-        try {
-          final response = await next(request);
-          final returnCodeKey =
-              response.context[returnCodeContextKey] as ReturnCode?;
-          if (returnCodeKey != null) {
-            return response;
-          }
+    try {
+      final response = await next(request);
+      final returnCodeKey =
+          response.context[returnCodeContextKey] as ReturnCode?;
+      if (returnCodeKey != null) {
+        return response;
+      }
 
-          return switch (response.statusCode) {
-            400 => ReturnCode.notFqdn.toResponse(),
-            >= 500 => ReturnCode.$911.toResponse(),
-            _ => response,
-          };
-          // ignore: avoid_catches_without_on_clauses
-        } catch (e, s) {
-          _logger.severe('Internal server error', e, s);
-          return ReturnCode.$911.toResponse();
-        }
+      return switch (response.statusCode) {
+        400 => ReturnCode.notFqdn.toResponse(),
+        >= 500 => ReturnCode.$911.toResponse(),
+        _ => response,
       };
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e, s) {
+      _logger.severe('Internal server error', e, s);
+      return ReturnCode.$911.toResponse();
+    }
+  };
 }

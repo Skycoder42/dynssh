@@ -34,10 +34,10 @@ void main() {
     late HttpServer sut;
 
     Uri testBaseUrl() => Uri(
-          scheme: 'http',
-          host: InternetAddress.loopbackIPv4.address,
-          port: sut.port,
-        );
+      scheme: 'http',
+      host: InternetAddress.loopbackIPv4.address,
+      port: sut.port,
+    );
 
     setUp(() {
       reset(mockConfig);
@@ -79,28 +79,24 @@ void main() {
         );
       });
 
-      test(
-        'starts http server on specific port',
-        retry: 5,
-        () async {
-          final testPort = 1024 + Random.secure().nextInt(65535 - 1024);
-          when(() => mockConfig.port).thenReturn(testPort);
+      test('starts http server on specific port', retry: 5, () async {
+        final testPort = 1024 + Random.secure().nextInt(65535 - 1024);
+        when(() => mockConfig.port).thenReturn(testPort);
 
-          await sut.start(di);
+        await sut.start(di);
 
-          expect(sut.port, testPort);
-          expect(
-            http.get(testBaseUrl()),
-            completion(
-              isA<http.Response>().having(
-                (m) => m.statusCode,
-                'statusCode',
-                HttpStatus.notFound,
-              ),
+        expect(sut.port, testPort);
+        expect(
+          http.get(testBaseUrl()),
+          completion(
+            isA<http.Response>().having(
+              (m) => m.statusCode,
+              'statusCode',
+              HttpStatus.notFound,
             ),
-          );
-        },
-      );
+          ),
+        );
+      });
 
       test(
         'starts http server on specific IP',
@@ -114,10 +110,7 @@ void main() {
 
           await sut.start(di);
 
-          expect(
-            http.get(testBaseUrl()),
-            throwsA(isA<SocketException>()),
-          );
+          expect(http.get(testBaseUrl()), throwsA(isA<SocketException>()));
           expect(
             http.get(testBaseUrl().replace(host: '127.1.2.3')),
             completion(
@@ -146,10 +139,7 @@ void main() {
 
           await sut.stop(force: fixture);
 
-          expect(
-            http.get(testUrl),
-            throwsA(isA<SocketException>()),
-          );
+          expect(http.get(testUrl), throwsA(isA<SocketException>()));
         },
       );
     });
@@ -166,11 +156,7 @@ void main() {
           http.get(testBaseUrl()),
           completion(
             isA<http.Response>()
-                .having(
-                  (m) => m.statusCode,
-                  'statusCode',
-                  HttpStatus.ok,
-                )
+                .having((m) => m.statusCode, 'statusCode', HttpStatus.ok)
                 .having((m) => m.body, 'body', 'test'),
           ),
         );

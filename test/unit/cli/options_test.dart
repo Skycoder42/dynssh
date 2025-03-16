@@ -41,10 +41,7 @@ void main() {
 
       expect(argParser.defaultFor('host'), InternetAddress.anyIPv4.address);
       expect(argParser.defaultFor('port'), '80');
-      expect(
-        argParser.defaultFor('api-key-path'),
-        '/etc/dynssh/api-keys.json',
-      );
+      expect(argParser.defaultFor('api-key-path'), '/etc/dynssh/api-keys.json');
       expect(argParser.defaultFor('ssh-directory'), '/etc/ssh');
       expect(argParser.defaultFor('log-level'), 'info');
     });
@@ -53,9 +50,7 @@ void main() {
       'can parse all log levels',
       const [null, ...Level.LEVELS],
       (fixture) {
-        final args = [
-          if (fixture != null) '-l${fixture.name.toLowerCase()}',
-        ];
+        final args = [if (fixture != null) '-l${fixture.name.toLowerCase()}'];
 
         final parser = Options.buildArgParser(mockPosixAdapter);
         final options = Options.parseOptions(parser.parse(args));

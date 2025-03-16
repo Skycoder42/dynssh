@@ -17,9 +17,8 @@ part 'ssh_config_parser.g.dart';
 
 // coverage:ignore-start
 @riverpod
-SshConfigParser sshConfigParser(Ref ref) => SshConfigParser(
-      ref.watch(configProvider),
-    );
+SshConfigParser sshConfigParser(Ref ref) =>
+    SshConfigParser(ref.watch(configProvider));
 // coverage:ignore-end
 
 class SshConfigParser {
@@ -78,10 +77,7 @@ class SshConfigParser {
       // handle comment lines
       if (trimmedLine.startsWith('#')) {
         currentSection.entries.add(
-          SshConfigComment(
-            trimmedLine.substring(1).trimLeft(),
-            rawLine,
-          ),
+          SshConfigComment(trimmedLine.substring(1).trimLeft(), rawLine),
         );
         continue;
       }

@@ -39,29 +39,24 @@ void main() {
         final testStream = Stream.value('');
         const testResult = {'a': '1', 'b': '2'};
 
-        when(() => mockProcessAdapter.streamLines(any(), any()))
-            .thenStream(testStream);
         when(
-          () => mockSshKnownHostsParser.getHostKeysFromLines(
-            any(),
-            any(),
-            any(),
-          ),
+          () => mockProcessAdapter.streamLines(any(), any()),
+        ).thenStream(testStream);
+        when(
+          () =>
+              mockSshKnownHostsParser.getHostKeysFromLines(any(), any(), any()),
         ).thenReturnAsync(testResult);
 
         final result = await sut.scanHost(testHost, fixture.$1);
         expect(result, testResult);
 
         verifyInOrder([
-          () => mockProcessAdapter.streamLines(
-                'ssh-keyscan',
-                fixture.$2,
-              ),
+          () => mockProcessAdapter.streamLines('ssh-keyscan', fixture.$2),
           () => mockSshKnownHostsParser.getHostKeysFromLines(
-                any(that: same(testStream)),
-                testHost,
-                fixture.$1,
-              ),
+            any(that: same(testStream)),
+            testHost,
+            fixture.$1,
+          ),
         ]);
       },
     );

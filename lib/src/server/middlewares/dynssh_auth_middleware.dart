@@ -22,42 +22,37 @@ class DynsshAuthMiddleware {
   Handler call(
     Handler next, {
     @visibleForTesting EndpointRef? refForTesting,
-  }) =>
-      (request) async {
-        final hostname =
-            request.url.queryParameters[DynsshEndpoint.hostNameParameterKey];
-        final authHeader = request.headers[HttpHeaders.authorizationHeader];
+  }) => (request) async {
+    final hostname =
+        request.url.queryParameters[DynsshEndpoint.hostNameParameterKey];
+    final authHeader = request.headers[HttpHeaders.authorizationHeader];
 
-        _logger
-          ..finest('hostname: $hostname')
-          ..finest('${HttpHeaders.authorizationHeader}: $authHeader');
+    _logger
+      ..finest('hostname: $hostname')
+      ..finest('${HttpHeaders.authorizationHeader}: $authHeader');
 
-        if (hostname == null) {
-          _logger.warning('hostname query parameter is missing in request');
-          return ReturnCode.notFqdn.toResponse();
-        }
+    if (hostname == null) {
+      _logger.warning('hostname query parameter is missing in request');
+      return ReturnCode.notFqdn.toResponse();
+    }
 
-        if (authHeader == null) {
-          _logger.warning(
-            'Blocked request with missing credentials for $hostname',
-          );
-          return ReturnCode.badAuth.toResponse();
-        }
+    if (authHeader == null) {
+      _logger.warning('Blocked request with missing credentials for $hostname');
+      return ReturnCode.badAuth.toResponse();
+    }
 
-        final expectedAuthHeader = await _buildExpectedAuthHeader(
-          refForTesting ?? request.ref,
-          request,
-          hostname,
-        );
-        if (expectedAuthHeader == null || authHeader != expectedAuthHeader) {
-          _logger.warning(
-            'Blocked request with invalid credentials for $hostname',
-          );
-          return ReturnCode.badAuth.toResponse();
-        }
+    final expectedAuthHeader = await _buildExpectedAuthHeader(
+      refForTesting ?? request.ref,
+      request,
+      hostname,
+    );
+    if (expectedAuthHeader == null || authHeader != expectedAuthHeader) {
+      _logger.warning('Blocked request with invalid credentials for $hostname');
+      return ReturnCode.badAuth.toResponse();
+    }
 
-        return await next(request);
-      };
+    return await next(request);
+  };
 
   Future<String?> _buildExpectedAuthHeader(
     EndpointRef ref,

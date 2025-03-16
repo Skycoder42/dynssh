@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: unnecessary_lambdas, discarded_futures
 
 import 'dart:async';
 import 'dart:io';
@@ -37,7 +37,7 @@ void main() {
         (ReturnCode.dnsErr, HttpStatus.internalServerError),
         (ReturnCode.$911, HttpStatus.internalServerError),
       ],
-      (fixture) async {
+      (fixture) {
         final response = fixture.$1.toResponse();
         expect(response.statusCode, fixture.$2);
         expect(response.readAsString(), completion(fixture.$1.raw));
@@ -57,7 +57,7 @@ void main() {
 
     late Handler sut;
 
-    setUp(() async {
+    setUp(() {
       reset(mockHandler);
 
       final middleware = DynsshReturnCodeMiddleware();
@@ -66,17 +66,18 @@ void main() {
 
     group('call', () {
       test(
-          'calls handler and returns original response if it has a return code',
-          () async {
-        final testResponse = ReturnCode.abuse.toResponse();
-        when(() => mockHandler(any())).thenReturn(testResponse);
+        'calls handler and returns original response if it has a return code',
+        () async {
+          final testResponse = ReturnCode.abuse.toResponse();
+          when(() => mockHandler(any())).thenReturn(testResponse);
 
-        final request = FakeRequest();
-        final response = await sut(request);
-        expect(response, same(testResponse));
+          final request = FakeRequest();
+          final response = await sut(request);
+          expect(response, same(testResponse));
 
-        verify(() => mockHandler(request));
-      });
+          verify(() => mockHandler(request));
+        },
+      );
 
       testData(
         'returns placeholder response if not present',

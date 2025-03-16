@@ -12,16 +12,16 @@ class SshConfigHost extends SshConfigOption
     List<String> patterns, [
     List<SshConfigEntry>? entries,
     String? raw,
-  ])  : entries = entries ?? [],
-        super('Host', patterns, raw);
+  ]) : entries = entries ?? [],
+       super('Host', patterns, raw);
 
   List<String> get patterns => arguments;
 
   @override
   Iterable<String> writeSection() => [
-        write(),
-        ...entries.map((e) => e.write(indentation: _findIndentation())),
-      ];
+    write(),
+    ...entries.map((e) => e.write(indentation: _findIndentation())),
+  ];
 
   int _findIndentation() {
     for (final entry in entries) {

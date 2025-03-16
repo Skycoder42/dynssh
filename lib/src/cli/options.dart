@@ -62,7 +62,8 @@ class Options {
     ],
     defaultsTo: 'info',
     valueHelp: 'level',
-    help: 'Customize the logging level. '
+    help:
+        'Customize the logging level. '
         'Listed from most verbose (all) to least verbose (off)',
   )
   final Level logLevel;
@@ -84,12 +85,13 @@ class Options {
     this.help = false,
   });
 
-  void logAll(Logger logger) => logger
-    ..config('host: $host')
-    ..config('port: $port')
-    ..config('apiKeyPath: $apiKeyPath')
-    ..config('sshConfigDir: $sshDirectory')
-    ..config('logLevel: $logLevel');
+  void logAll(Logger logger) =>
+      logger
+        ..config('host: $host')
+        ..config('port: $port')
+        ..config('apiKeyPath: $apiKeyPath')
+        ..config('sshConfigDir: $sshDirectory')
+        ..config('logLevel: $logLevel');
 
   static ArgParser buildArgParser(PosixAdapter posixAdapter) =>
       _$populateOptionsParser(
@@ -115,10 +117,9 @@ class Options {
         return Directory.current.path;
       }
 
-      return Directory(homePath)
-          .uri
-          .resolve('.config/$pathSuffix')
-          .toFilePath();
+      return Directory(
+        homePath,
+      ).uri.resolve('.config/$pathSuffix').toFilePath();
     }
   }
 

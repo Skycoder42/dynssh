@@ -11,14 +11,10 @@ import '../config/config.dart';
 import 'dynssh_api.dart';
 
 // coverage:ignore-start
-final httpServerProvider = Provider<HttpServer>(
-  (ref) {
-    ref.onDispose(() => ref.state.stop());
-    return HttpServer(
-      ref.watch(configProvider),
-    );
-  },
-);
+final httpServerProvider = Provider<HttpServer>((ref) {
+  ref.onDispose(() => ref.state.stop());
+  return HttpServer(ref.watch(configProvider));
+});
 // coverage:ignore-end
 
 class HttpServer {
@@ -71,15 +67,17 @@ class HttpServer {
   void _logRequest(String message, bool isError) =>
       isError ? _logger.severe(message) : _logger.fine(message);
 
-  Middleware _handleSeverError() => (next) => (request) async {
+  Middleware _handleSeverError() =>
+      (next) => (request) async {
         try {
           return await next(request);
           // ignore: avoid_catches_without_on_clauses
         } catch (e, s) {
-          final buffer = StringBuffer()
-            ..writeln(e)
-            ..writeln()
-            ..writeln(s);
+          final buffer =
+              StringBuffer()
+                ..writeln(e)
+                ..writeln()
+                ..writeln(s);
           return Response.internalServerError(body: buffer.toString());
         }
       };

@@ -25,12 +25,12 @@ class SshConfig {
 
   SshConfigHost? findHost(String pattern) =>
       hosts.cast<SshConfigHost?>().firstWhere(
-            (host) => host!.patterns.contains(pattern),
-            orElse: () => null,
-          );
+        (host) => host!.patterns.contains(pattern),
+        orElse: () => null,
+      );
 
   Iterable<String> writeConfig() => [
-        ...globals.writeSection(),
-        ...hosts.expand((host) => host.writeSection()),
-      ];
+    ...globals.writeSection(),
+    ...hosts.expand((host) => host.writeSection()),
+  ];
 }

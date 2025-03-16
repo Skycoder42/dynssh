@@ -32,13 +32,14 @@ class Config {
       return null;
     }
 
-    final apiKeyConfig = await apiKeyFile
-        .openRead()
-        .transform(utf8.decoder)
-        .transform(json.decoder)
-        .cast<Map<String, dynamic>>()
-        .map(ApiKeyConfig.fromJson)
-        .single;
+    final apiKeyConfig =
+        await apiKeyFile
+            .openRead()
+            .transform(utf8.decoder)
+            .transform(json.decoder)
+            .cast<Map<String, dynamic>>()
+            .map(ApiKeyConfig.fromJson)
+            .single;
 
     return apiKeyConfig.apiKeys[host];
   }

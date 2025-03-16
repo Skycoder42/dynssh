@@ -9,28 +9,26 @@ part 'ssh_keyscan.g.dart';
 // coverage:ignore-start
 @riverpod
 SshKeyscan sshKeyscan(Ref ref) => SshKeyscan(
-      ref.watch(processAdapterProvider),
-      ref.watch(sshKnownHostsParserProvider),
-    );
+  ref.watch(processAdapterProvider),
+  ref.watch(sshKnownHostsParserProvider),
+);
 // coverage:ignore-end
 
 class SshKeyscan {
   final ProcessAdapter _processAdapter;
   final SshKnownHostsParser _sshKnownHostsParser;
 
-  SshKeyscan(
-    this._processAdapter,
-    this._sshKnownHostsParser,
-  );
+  SshKeyscan(this._processAdapter, this._sshKnownHostsParser);
 
   Future<Map<String, String>> scanHost(String host, [int? port]) async {
-    final keyscanLines = _processAdapter.streamLines(
-      'ssh-keyscan',
-      [
-        if (port != null) ...['-p', port.toString()],
-        host,
-      ],
+    final keyscanLines = _processAdapter.streamLines('ssh-keyscan', [
+      if (port != null) ...['-p', port.toString()],
+      host,
+    ]);
+    return await _sshKnownHostsParser.getHostKeysFromLines(
+      keyscanLines,
+      host,
+      port,
     );
-    return _sshKnownHostsParser.getHostKeysFromLines(keyscanLines, host, port);
   }
 }

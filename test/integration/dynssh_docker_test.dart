@@ -22,25 +22,22 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
     final port = testOptions.port == 0 ? 8042 : testOptions.port;
 
     _containerName = 'dynssh_docker_test_${Random.secure().nextInt(100000)}';
-    final dockerProc = await Process.start(
-      'docker',
-      [
-        'run',
-        '--rm',
-        '--name',
-        _containerName,
-        '--add-host=host.docker.internal:host-gateway',
-        '-v',
-        '${testOptions.sshDirectory}:/etc/ssh',
-        '-v',
-        '${testOptions.apiKeyPath}:/etc/dynssh/api-keys.json:ro',
-        '-p',
-        '${testOptions.host}:$port:80',
-        'local/dynssh',
-        '-l',
-        testOptions.logLevel.name.toLowerCase(),
-      ],
-    );
+    final dockerProc = await Process.start('docker', [
+      'run',
+      '--rm',
+      '--name',
+      _containerName,
+      '--add-host=host.docker.internal:host-gateway',
+      '-v',
+      '${testOptions.sshDirectory}:/etc/ssh',
+      '-v',
+      '${testOptions.apiKeyPath}:/etc/dynssh/api-keys.json:ro',
+      '-p',
+      '${testOptions.host}:$port:80',
+      'local/dynssh',
+      '-l',
+      testOptions.logLevel.name.toLowerCase(),
+    ]);
 
     addTearDown(() async {
       dockerProc.kill();
@@ -89,11 +86,7 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
       'hosts',
       getServerName(),
     ]);
-    expect(
-      result.exitCode,
-      0,
-      reason: result.stderr.toString(),
-    );
+    expect(result.exitCode, 0, reason: result.stderr.toString());
 
     final lines = const LineSplitter().convert(result.stdout as String);
     expect(

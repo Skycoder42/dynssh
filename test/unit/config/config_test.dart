@@ -62,11 +62,7 @@ void main() {
 
       test('returns null if file does not contain host', () async {
         await File(testOptions.apiKeyPath).writeAsString(
-          json.encode(
-            const ApiKeyConfig({
-              'other-host-name': testApiKey,
-            }),
-          ),
+          json.encode(const ApiKeyConfig({'other-host-name': testApiKey})),
         );
 
         expect(sut.findApiKey(testHostName), completion(isNull));
@@ -74,11 +70,7 @@ void main() {
 
       test('returns key if file does contain host', () async {
         await File(testOptions.apiKeyPath).writeAsString(
-          json.encode(
-            const ApiKeyConfig({
-              testHostName: testApiKey,
-            }),
-          ),
+          json.encode(const ApiKeyConfig({testHostName: testApiKey})),
         );
 
         expect(sut.findApiKey(testHostName), completion(testApiKey));
@@ -87,10 +79,7 @@ void main() {
       test('throws exception if file content is not valid', () async {
         await File(testOptions.apiKeyPath).writeAsString('invalid content');
 
-        expect(
-          sut.findApiKey(testHostName),
-          throwsException,
-        );
+        expect(sut.findApiKey(testHostName), throwsException);
       });
     });
   });

@@ -21,7 +21,8 @@ class ProcessFailed implements Exception {
 
   // coverage:ignore-start
   @override
-  String toString() => 'ProcessFailed: $executable ${arguments.join(' ')} '
+  String toString() =>
+      'ProcessFailed: $executable ${arguments.join(' ')} '
       'failed with exit code $exitCode';
   // coverage:ignore-end
 }
@@ -39,10 +40,7 @@ class ProcessAdapter {
   }) async* {
     final logLine = _logLine(executable, arguments);
     _logger.finer('Streaming lines $logLine...');
-    final proc = await Process.start(
-      executable,
-      arguments,
-    );
+    final proc = await Process.start(executable, arguments);
 
     final stderrSub = proc.stderr
         .transform(systemEncoding.decoder)
@@ -55,9 +53,7 @@ class ProcessAdapter {
           .transform(const LineSplitter());
 
       final exitCode = await proc.exitCode;
-      _logger.finer(
-        '$logLine completed with exit code: $exitCode',
-      );
+      _logger.finer('$logLine completed with exit code: $exitCode');
       if (expectedExitCode != null) {
         if (exitCode != expectedExitCode) {
           throw ProcessFailed(executable, arguments, exitCode);

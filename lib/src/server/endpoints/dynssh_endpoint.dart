@@ -14,10 +14,7 @@ class DynsshEndpoint extends ShelfEndpoint {
 
   final _logger = Logger('$DynsshEndpoint');
 
-  DynsshEndpoint(
-    super.request, {
-    @visibleForTesting super.ref,
-  });
+  DynsshEndpoint(super.request, {@visibleForTesting super.ref});
 
   @Post('/update')
   Future<TResponse<String>> update({
@@ -39,11 +36,11 @@ class DynsshEndpoint extends ShelfEndpoint {
   Future<TResponse<String>> updateViaGet({
     @QueryParam(name: hostNameParameterKey) required String hostName,
     @QueryParam(name: 'myip') required String myIP,
-  }) =>
-      update(hostname: hostName, myIP: myIP);
+  }) => update(hostname: hostName, myIP: myIP);
 
-  static Middleware dynsshMiddleware() => const Pipeline()
-      .addMiddleware(dynsshReturnCode())
-      .addMiddleware(dynsshAuth())
-      .middleware;
+  static Middleware dynsshMiddleware() =>
+      const Pipeline()
+          .addMiddleware(dynsshReturnCode())
+          .addMiddleware(dynsshAuth())
+          .middleware;
 }

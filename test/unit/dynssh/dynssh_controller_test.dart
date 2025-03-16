@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: unnecessary_lambdas, discarded_futures
 
 import 'dart:async';
 
@@ -38,7 +38,7 @@ void main() {
 
     late DynsshController sut;
 
-    setUp(() async {
+    setUp(() {
       reset(mockSshConfigParser);
       reset(mockSshKnownHostsParser);
       reset(mockSshKeyscan);
@@ -81,8 +81,9 @@ void main() {
       );
 
       test('runs update synchronized', () async {
-        when(() => mockSshConfigParser.parse())
-            .thenReturnAsync(Completer<SshConfig>().future);
+        when(
+          () => mockSshConfigParser.parse(),
+        ).thenReturnAsync(Completer<SshConfig>().future);
 
         final f1 = sut.updateHost(testHostUpdate);
         final f2 = sut.updateHost(testHostUpdate);
@@ -109,8 +110,9 @@ void main() {
       });
 
       test('rejects update if host config has not changed', () async {
-        when(() => mockSshConfigHost['HostName'])
-            .thenReturn([testHostUpdate.ipAddress]);
+        when(
+          () => mockSshConfigHost['HostName'],
+        ).thenReturn([testHostUpdate.ipAddress]);
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -126,8 +128,9 @@ void main() {
 
       test('rejects update if there are no known host keys for host', () async {
         when(() => mockSshConfigHost.patterns).thenReturn([testOldAddress]);
-        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
-            .thenReturnAsync(const {});
+        when(
+          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
+        ).thenReturnAsync(const {});
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -144,20 +147,16 @@ void main() {
       });
 
       test('rejects update if host keys are not identical', () async {
-        const oldHostKeys = {
-          'a': 'key1',
-          'b': 'key2',
-        };
-        const otherHostKeys = {
-          'a': 'key1',
-          'b': 'key-other',
-        };
+        const oldHostKeys = {'a': 'key1', 'b': 'key2'};
+        const otherHostKeys = {'a': 'key1', 'b': 'key-other'};
 
         when(() => mockSshConfigHost['HostName']).thenReturn([testOldAddress]);
-        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
-            .thenReturnAsync(oldHostKeys);
-        when(() => mockSshKeyscan.scanHost(any(), any()))
-            .thenReturnAsync(otherHostKeys);
+        when(
+          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
+        ).thenReturnAsync(oldHostKeys);
+        when(
+          () => mockSshKeyscan.scanHost(any(), any()),
+        ).thenReturnAsync(otherHostKeys);
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -174,17 +173,16 @@ void main() {
       });
 
       test('accepts update if host keys are identical', () async {
-        const hostKeys = {
-          'a': 'key1',
-          'b': 'key2',
-        };
+        const hostKeys = {'a': 'key1', 'b': 'key2'};
 
         when(() => mockSshConfigHost['HostName']).thenReturn([testOldAddress]);
         when(() => mockSshConfigHost['Port']).thenReturn(['123']);
-        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
-            .thenReturnAsync(hostKeys);
-        when(() => mockSshKeyscan.scanHost(any(), any()))
-            .thenReturnAsync(hostKeys);
+        when(
+          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
+        ).thenReturnAsync(hostKeys);
+        when(
+          () => mockSshKeyscan.scanHost(any(), any()),
+        ).thenReturnAsync(hostKeys);
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -200,11 +198,11 @@ void main() {
           () => mockSshConfigHost['HostName'] = [testHostUpdate.ipAddress],
           () => mockSshConfigParser.update(mockSshConfig),
           () => mockSshKnownHostsParser.replaceHost(
-                oldHost: testOldAddress,
-                oldPort: 123,
-                newHost: testHostUpdate.ipAddress,
-                newPort: 123,
-              ),
+            oldHost: testOldAddress,
+            oldPort: 123,
+            newHost: testHostUpdate.ipAddress,
+            newPort: 123,
+          ),
         ]);
       });
     });

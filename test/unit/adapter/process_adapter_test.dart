@@ -72,11 +72,7 @@ void main() {
 
       test('emits error on custom unexpected exit code', () {
         const arguments = ['-c', 'echo line1'];
-        final stream = sut.streamLines(
-          'bash',
-          arguments,
-          expectedExitCode: 42,
-        );
+        final stream = sut.streamLines('bash', arguments, expectedExitCode: 42);
 
         expect(
           stream,
@@ -94,19 +90,12 @@ void main() {
       });
 
       test('does not emit error if exit code validation is disabled', () {
-        final stream = sut.streamLines(
-          'bash',
-          ['-c', 'echo line1; exit 12'],
-          expectedExitCode: null,
-        );
+        final stream = sut.streamLines('bash', [
+          '-c',
+          'echo line1; exit 12',
+        ], expectedExitCode: null);
 
-        expect(
-          stream,
-          emitsInOrder(<dynamic>[
-            'line1',
-            emitsDone,
-          ]),
-        );
+        expect(stream, emitsInOrder(<dynamic>['line1', emitsDone]));
       });
     });
   });

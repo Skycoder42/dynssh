@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -65,8 +67,9 @@ abstract base class DynsshTestCase {
         logLevel: Level.ALL,
       );
 
-      await File('${testOptions.sshDirectory}/config')
-          .writeAsString(_createSshConfig(getServerName()));
+      await File(
+        '${testOptions.sshDirectory}/config',
+      ).writeAsString(_createSshConfig(getServerName()));
 
       port = await runDynssh(testOptions);
       serverIp = await getServerIp();
@@ -89,26 +92,25 @@ abstract base class DynsshTestCase {
         host: InternetAddress.loopbackIPv4.address,
         port: port,
         path: path ?? '/dynssh/update',
-        queryParameters: query ??
-            <String, String>{
-              'hostname': _testHostname,
-              'myip': serverIp,
-            },
+        queryParameters:
+            query ??
+            <String, String>{'hostname': _testHostname, 'myip': serverIp},
       );
 
       final headers = {
         if (authHeader != null) HttpHeaders.authorizationHeader: authHeader,
       };
 
-      final response = get
-          ? await http.get(url, headers: headers)
-          : await http.put(url, headers: headers);
+      final response =
+          get
+              ? await http.get(url, headers: headers)
+              : await http.put(url, headers: headers);
 
       final responseBody = response.body.trim();
       try {
         return (
           response.statusCode,
-          ReturnCode.values.singleWhere((c) => c.raw == responseBody)
+          ReturnCode.values.singleWhere((c) => c.raw == responseBody),
         );
 
         // ignore: avoid_catches_without_on_clauses
@@ -119,92 +121,83 @@ abstract base class DynsshTestCase {
       }
     }
 
-    test('can start server', () async {
+    test('can start server', () {
       expect(port, isNot(0));
     });
 
-    test('rejects unknown paths with 404', () async {
+    test('rejects unknown paths with 404', () {
       expect(
         sendUpdateRequest(path: '/invalid/service'),
         completion((HttpStatus.notFound, null)),
       );
     });
 
-    test('rejects invalid method with 404', () async {
+    test('rejects invalid method with 404', () {
       expect(
         sendUpdateRequest(get: false),
         completion((HttpStatus.notFound, null)),
       );
     });
 
-    test('rejects missing credentials with 401', () async {
+    test('rejects missing credentials with 401', () {
       expect(
         sendUpdateRequest(authHeader: null),
         completion((HttpStatus.unauthorized, ReturnCode.badAuth)),
       );
     });
 
-    test('rejects missing hostname with 400', () async {
+    test('rejects missing hostname with 400', () {
       expect(
         sendUpdateRequest(query: const {}),
         completion((HttpStatus.badRequest, ReturnCode.notFqdn)),
       );
     });
 
-    test('rejects invalid hostname with 401', () async {
+    test('rejects invalid hostname with 401', () {
       expect(
         sendUpdateRequest(query: const {'hostname': 'example.com'}),
         completion((HttpStatus.unauthorized, ReturnCode.badAuth)),
       );
     });
 
-    test('rejects valid hostname with invalid api key with 401', () async {
+    test('rejects valid hostname with invalid api key with 401', () {
       expect(
         sendUpdateRequest(query: const {'hostname': _testUnauthorizedHostname}),
         completion((HttpStatus.unauthorized, ReturnCode.badAuth)),
       );
     });
 
-    test('rejects query without ip address with 400', () async {
+    test('rejects query without ip address with 400', () {
       expect(
         sendUpdateRequest(query: const {'hostname': _testHostname}),
         completion((HttpStatus.badRequest, ReturnCode.notFqdn)),
       );
     });
 
-    test('rejects update with unknown host with 400', () async {
+    test('rejects update with unknown host with 400', () {
       expect(
         sendUpdateRequest(
-          query: {
-            'hostname': _testUnknownHostname,
-            'myip': serverIp,
-          },
+          query: {'hostname': _testUnknownHostname, 'myip': serverIp},
           authHeader: testUnknownAuthHeader,
         ),
         completion((HttpStatus.badRequest, ReturnCode.noHost)),
       );
     });
 
-    test('rejects update for host without keys with 400', () async {
+    test('rejects update for host without keys with 400', () {
       expect(
         sendUpdateRequest(
-          query: {
-            'hostname': _testKeylessHostname,
-            'myip': serverIp,
-          },
+          query: {'hostname': _testKeylessHostname, 'myip': serverIp},
           authHeader: testKeylessAuthHeader,
         ),
         completion((HttpStatus.badRequest, ReturnCode.noHost)),
       );
     });
 
-    test('rejects update with host key mismatch with 400', () async {
+    test('rejects update with host key mismatch with 400', () {
       expect(
         sendUpdateRequest(
-          query: {
-            'hostname': _testForbiddenHostname,
-            'myip': serverIp,
-          },
+          query: {'hostname': _testForbiddenHostname, 'myip': serverIp},
           authHeader: testForbiddenAuthHeader,
         ),
         completion((HttpStatus.badRequest, ReturnCode.abuse)),
@@ -219,10 +212,7 @@ abstract base class DynsshTestCase {
 
       final sshConfig = File('${Platform.environment['HOME']}/.ssh/config');
       expect(sshConfig.existsSync(), isTrue);
-      expect(
-        sshConfig.readAsString(),
-        completion(_createSshConfig(serverIp)),
-      );
+      expect(sshConfig.readAsString(), completion(_createSshConfig(serverIp)));
     });
 
     test('accepts update with unchanged data with 200', () async {
@@ -233,10 +223,7 @@ abstract base class DynsshTestCase {
 
       final sshConfig = File('${Platform.environment['HOME']}/.ssh/config');
       expect(sshConfig.existsSync(), isTrue);
-      expect(
-        sshConfig.readAsString(),
-        completion(_createSshConfig(serverIp)),
-      );
+      expect(sshConfig.readAsString(), completion(_createSshConfig(serverIp)));
     });
   }
 
@@ -250,8 +237,8 @@ abstract base class DynsshTestCase {
   Future<String> getServerIp();
 
   void _printLogRecord(LogRecord logRecord) =>
-      // ignore: avoid_print
-      print('${logRecord.time.toIso8601String()} $logRecord');
+  // ignore: avoid_print
+  print('${logRecord.time.toIso8601String()} $logRecord');
 
   String _createSshConfig(String hostName) => '''
 Host $_testHostname

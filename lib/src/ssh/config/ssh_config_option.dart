@@ -6,7 +6,7 @@ class SshConfigOption extends SshConfigEntry {
   final List<String> arguments;
 
   SshConfigOption(this._keyword, List<String> arguments, [super.raw])
-      : arguments = List.unmodifiable(arguments);
+    : arguments = List.unmodifiable(arguments);
 
   String get keyword => _keyword.toLowerCase();
 

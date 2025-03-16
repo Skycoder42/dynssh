@@ -13,14 +13,15 @@ mixin SshConfigSectionMixin implements SshConfigSection {
 
   void addComment(String comment) => entries.add(SshConfigComment(comment));
 
-  List<String>? operator [](String keyword) => entries
-      .whereType<SshConfigOption>()
-      .cast<SshConfigOption?>()
-      .firstWhere(
-        (option) => option!.keyword == keyword.toLowerCase(),
-        orElse: () => null,
-      )
-      ?.arguments;
+  List<String>? operator [](String keyword) =>
+      entries
+          .whereType<SshConfigOption>()
+          .cast<SshConfigOption?>()
+          .firstWhere(
+            (option) => option!.keyword == keyword.toLowerCase(),
+            orElse: () => null,
+          )
+          ?.arguments;
 
   void operator []=(String keyword, List<String> arguments) {
     final entryIndex = entries.indexWhere(

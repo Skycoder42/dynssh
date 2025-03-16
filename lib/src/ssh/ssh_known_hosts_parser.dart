@@ -10,9 +10,8 @@ part 'ssh_known_hosts_parser.g.dart';
 
 // coverage:ignore-start
 @riverpod
-SshKnownHostsParser sshKnownHostsParser(Ref ref) => SshKnownHostsParser(
-      ref.watch(configProvider),
-    );
+SshKnownHostsParser sshKnownHostsParser(Ref ref) =>
+    SshKnownHostsParser(ref.watch(configProvider));
 // coverage:ignore-end
 
 class SshKnownHostsParser {
@@ -91,8 +90,9 @@ class SshKnownHostsParser {
 
   File _knownHostsFile() {
     final sshKnownHostsFile = _config.sshFile('known_hosts');
-    _logger
-        .finer('Detected SSH known_hosts file as: ${sshKnownHostsFile.path}');
+    _logger.finer(
+      'Detected SSH known_hosts file as: ${sshKnownHostsFile.path}',
+    );
     return sshKnownHostsFile;
   }
 
