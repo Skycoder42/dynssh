@@ -3,7 +3,7 @@ name: Weekly - Docker image update
 on:
   workflow_dispatch:
   schedule:
-    - cron: "25 5 * * 4"
+    - cron: "25 5 * * 5"
 
 env:
   WORKFLOW_ID: docker_update.yaml
