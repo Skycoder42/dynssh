@@ -38,9 +38,8 @@ class DynsshEndpoint extends ShelfEndpoint {
     @QueryParam(name: 'myip') required String myIP,
   }) => update(hostname: hostName, myIP: myIP);
 
-  static Middleware dynsshMiddleware() =>
-      const Pipeline()
-          .addMiddleware(dynsshReturnCode())
-          .addMiddleware(dynsshAuth())
-          .middleware;
+  static Middleware dynsshMiddleware() => const Pipeline()
+      .addMiddleware(dynsshReturnCode())
+      .addMiddleware(dynsshAuth())
+      .middleware;
 }

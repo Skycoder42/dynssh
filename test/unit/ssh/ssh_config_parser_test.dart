@@ -234,7 +234,8 @@ final _configTestData = [
     config: SshConfig(SshConfigGlobals([]), []),
     write: null,
     update: null,
-    edit: '''
+    edit:
+        '''
 # Very important
 Important a b
 
@@ -250,7 +251,8 @@ Host $_testHost
     config: SshConfig(SshConfigGlobals([SshConfigOption('Key', [])]), []),
     write: 'Key\n',
     update: 'Key\n',
-    edit: '''
+    edit:
+        '''
 Key
 # Very important
 Important a b
@@ -297,7 +299,8 @@ Host
 key6 "Value 61" Value 62
 ''',
     update: null,
-    edit: '''
+    edit:
+        '''
 Key1
 #Key2 Value2
 Key3 Value3
@@ -317,7 +320,8 @@ Host $_testHost
 ''',
   ),
   (
-    read: '''
+    read:
+        '''
 Key1 Value1
 
 Host $_testHost
@@ -363,7 +367,8 @@ Key5 Value5
         ),
       ],
     ),
-    write: '''
+    write:
+        '''
 Key1 Value1
 
 Host $_testHost
@@ -379,7 +384,8 @@ Host host5
     Key5 Value5
 ''',
     update: null,
-    edit: '''
+    edit:
+        '''
 Key1
 
 # Very important

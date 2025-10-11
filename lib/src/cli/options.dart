@@ -85,13 +85,12 @@ class Options {
     this.help = false,
   });
 
-  void logAll(Logger logger) =>
-      logger
-        ..config('host: $host')
-        ..config('port: $port')
-        ..config('apiKeyPath: $apiKeyPath')
-        ..config('sshConfigDir: $sshDirectory')
-        ..config('logLevel: $logLevel');
+  void logAll(Logger logger) => logger
+    ..config('host: $host')
+    ..config('port: $port')
+    ..config('apiKeyPath: $apiKeyPath')
+    ..config('sshConfigDir: $sshDirectory')
+    ..config('logLevel: $logLevel');
 
   static ArgParser buildArgParser(PosixAdapter posixAdapter) =>
       _$populateOptionsParser(

@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -115,8 +114,9 @@ class DynsshController {
   }
 
   String _hostLog(String hostAddress, int? hostPort) {
-    final hostLog =
-        hostPort != null ? '$hostAddress (port: $hostPort)' : hostAddress;
+    final hostLog = hostPort != null
+        ? '$hostAddress (port: $hostPort)'
+        : hostAddress;
     return hostLog;
   }
 

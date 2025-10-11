@@ -26,8 +26,6 @@ Future<void> main(List<String> arguments) async {
 
     final server = di.read(httpServerProvider);
     await server.start(di);
-
-    // ignore: avoid_catches_without_on_clauses
   } catch (e) {
     di.dispose();
     rethrow;

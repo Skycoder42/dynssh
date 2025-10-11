@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:logging/logging.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_api/shelf_api.dart';
@@ -10,11 +10,15 @@ import 'package:shelf_api/shelf_api.dart';
 import '../config/config.dart';
 import 'dynssh_api.dart';
 
+part 'http_server.g.dart';
+
 // coverage:ignore-start
-final httpServerProvider = Provider<HttpServer>((ref) {
-  ref.onDispose(() => ref.state.stop());
-  return HttpServer(ref.watch(configProvider));
-});
+@riverpod
+HttpServer httpServer(Ref ref) {
+  final server = HttpServer(ref.watch(configProvider));
+  ref.onDispose(server.stop);
+  return server;
+}
 // coverage:ignore-end
 
 class HttpServer {
@@ -73,11 +77,10 @@ class HttpServer {
           return await next(request);
           // ignore: avoid_catches_without_on_clauses
         } catch (e, s) {
-          final buffer =
-              StringBuffer()
-                ..writeln(e)
-                ..writeln()
-                ..writeln(s);
+          final buffer = StringBuffer()
+            ..writeln(e)
+            ..writeln()
+            ..writeln(s);
           return Response.internalServerError(body: buffer.toString());
         }
       };

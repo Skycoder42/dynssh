@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_lambdas
-
 import 'dart:async';
 import 'dart:io';
 
@@ -44,7 +42,6 @@ void main() {
       reset(mockRequest);
       reset(mockEndpointRef);
 
-      // ignore: discarded_futures
       when(() => mockHandler(any())).thenReturn(ReturnCode.good.toResponse());
       when(() => mockEndpointRef.read(configProvider)).thenReturn(mockConfig);
 

@@ -1,7 +1,6 @@
 // coverage:ignore-file
 
 import 'package:posix/posix.dart' as posix;
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'posix_adapter.g.dart';

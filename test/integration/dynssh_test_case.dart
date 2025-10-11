@@ -1,5 +1,3 @@
-// ignore_for_file: discarded_futures
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -97,14 +95,11 @@ abstract base class DynsshTestCase {
             <String, String>{'hostname': _testHostname, 'myip': serverIp},
       );
 
-      final headers = {
-        if (authHeader != null) HttpHeaders.authorizationHeader: authHeader,
-      };
+      final headers = {HttpHeaders.authorizationHeader: ?authHeader};
 
-      final response =
-          get
-              ? await http.get(url, headers: headers)
-              : await http.put(url, headers: headers);
+      final response = get
+          ? await http.get(url, headers: headers)
+          : await http.put(url, headers: headers);
 
       final responseBody = response.body.trim();
       try {
@@ -237,10 +232,11 @@ abstract base class DynsshTestCase {
   Future<String> getServerIp();
 
   void _printLogRecord(LogRecord logRecord) =>
-  // ignore: avoid_print
-  print('${logRecord.time.toIso8601String()} $logRecord');
+      // ignore: avoid_print
+      print('${logRecord.time.toIso8601String()} $logRecord');
 
-  String _createSshConfig(String hostName) => '''
+  String _createSshConfig(String hostName) =>
+      '''
 Host $_testHostname
   HostName $hostName
   User ${Platform.environment['USER']}

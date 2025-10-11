@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas, discarded_futures
+// ignore_for_file: unnecessary_lambdas
 
 import 'dart:convert';
 import 'dart:io';
@@ -106,7 +106,8 @@ void main() {
       });
 
       test('reads config from file', () async {
-        const testContent = '''
+        const testContent =
+            '''
 $testHost typeA key1
 $testHost typeB key2
 other.$testHost typeC key3

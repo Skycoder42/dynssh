@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_lambdas, discarded_futures
-
 import 'dart:async';
 import 'dart:io';
 

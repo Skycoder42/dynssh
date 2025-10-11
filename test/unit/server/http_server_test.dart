@@ -1,11 +1,8 @@
-// ignore_for_file: discarded_futures
-
 import 'dart:io';
 import 'dart:math';
 
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/config/config.dart';
-import 'package:dynssh/src/server/dynssh_api.api.dart';
 import 'package:dynssh/src/server/dynssh_api.dart';
 import 'package:dynssh/src/server/http_server.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +13,7 @@ import 'package:test/test.dart';
 
 class MockConfig extends Mock implements Config {}
 
-class MockDynsshApi extends Mock implements DynsshApi {}
+class MockDynsshApi extends Mock implements DynsshApiMirror {}
 
 class FakeRequest extends Fake implements Request {}
 
