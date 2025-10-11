@@ -9,7 +9,7 @@ import '../models/api_key_config.dart';
 part 'config.g.dart';
 
 // coverage:ignore-start
-@riverpod
+@Riverpod(keepAlive: true)
 Config config(Ref ref) => Config();
 // coverage:ignore-end
 

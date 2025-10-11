@@ -13,9 +13,9 @@ import 'dynssh_api.dart';
 part 'http_server.g.dart';
 
 // coverage:ignore-start
-@riverpod
+@Riverpod(keepAlive: true)
 HttpServer httpServer(Ref ref) {
-  final server = HttpServer(ref.watch(configProvider));
+  final server = HttpServer(ref.watch(configProvider), ref.container);
   ref.onDispose(server.stop);
   return server;
 }
@@ -23,19 +23,18 @@ HttpServer httpServer(Ref ref) {
 
 class HttpServer {
   final Config _config;
+  final ProviderContainer _di;
   final _logger = Logger('$HttpServer');
 
-  late final ProviderContainer _di;
   late final io.HttpServer _server;
   var _open = false;
 
-  HttpServer(this._config);
+  HttpServer(this._config, this._di);
 
   int get port => _server.port;
 
-  Future<void> start(ProviderContainer di) async {
+  Future<void> start() async {
     _logger.info('Starting HTTP-Server...');
-    _di = di;
     _server = await serve(
       _requestHandler,
       _config.host,

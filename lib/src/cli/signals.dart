@@ -8,7 +8,7 @@ part 'signals.g.dart';
 
 typedef _SignalInfo = ({ProcessSignal signal, void Function() callback});
 
-@riverpod
+@Riverpod(keepAlive: true)
 StreamSubscription<ProcessSignal> _signal(Ref ref, _SignalInfo info) {
   final logger = Logger('signals.${info.signal}');
   final sub = info.signal.watch().listen((signal) {
@@ -22,6 +22,6 @@ StreamSubscription<ProcessSignal> _signal(Ref ref, _SignalInfo info) {
 extension ProviderContainerX on ProviderContainer {
   void registerTerminationFor(ProcessSignal signal) {
     Logger('signals.$signal').finer('Registering signal handler');
-    listen(_signalProvider((signal: signal, callback: dispose)), (_, _) {});
+    read(_signalProvider((signal: signal, callback: dispose)));
   }
 }

@@ -52,7 +52,7 @@ void main() {
 
       when(() => mockDynsshApi(any())).thenReturn(Response.notFound(null));
 
-      sut = HttpServer(mockConfig);
+      sut = HttpServer(mockConfig, di);
     });
 
     tearDown(() async {
@@ -62,7 +62,7 @@ void main() {
 
     group('start', () {
       test('starts http server on random port', () async {
-        await sut.start(di);
+        await sut.start();
 
         expect(
           http.get(testBaseUrl()),
@@ -80,7 +80,7 @@ void main() {
         final testPort = 1024 + Random.secure().nextInt(65535 - 1024);
         when(() => mockConfig.port).thenReturn(testPort);
 
-        await sut.start(di);
+        await sut.start();
 
         expect(sut.port, testPort);
         expect(
@@ -105,7 +105,7 @@ void main() {
         () async {
           when(() => mockConfig.host).thenReturn(InternetAddress('127.1.2.3'));
 
-          await sut.start(di);
+          await sut.start();
 
           expect(http.get(testBaseUrl()), throwsA(isA<SocketException>()));
           expect(
@@ -124,7 +124,7 @@ void main() {
 
     group('stop', () {
       setUp(() async {
-        await sut.start(di);
+        await sut.start();
       });
 
       testData<bool>(
@@ -143,7 +143,7 @@ void main() {
 
     group('handleRequest', () {
       setUp(() async {
-        await sut.start(di);
+        await sut.start();
       });
 
       test('returns response of dynssh api', () async {

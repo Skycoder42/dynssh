@@ -25,7 +25,7 @@ Future<void> main(List<String> arguments) async {
     di.read(configProvider).initialize(options);
 
     final server = di.read(httpServerProvider);
-    await server.start(di);
+    await server.start();
   } catch (e) {
     di.dispose();
     rethrow;

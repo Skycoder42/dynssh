@@ -19,7 +19,7 @@ final class _DynsshCliTestCase extends DynsshTestCase {
     di.read(configProvider).initialize(testOptions);
 
     final server = di.read(httpServerProvider);
-    await server.start(di);
+    await server.start();
     addTearDown(server.stop);
 
     return server.port;
