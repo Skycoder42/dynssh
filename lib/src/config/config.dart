@@ -42,7 +42,7 @@ class Config {
     return apiKeyConfig.apiKeys[host];
   }
 
-  // ignore: use_setters_to_change_properties
+  // ignore: use_setters_to_change_properties for initializer
   void initialize(Options cliOptions) {
     _cliOptions = cliOptions;
   }

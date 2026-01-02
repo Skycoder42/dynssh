@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print for testing
 
 @TestOn('linux')
 library;
@@ -64,7 +64,7 @@ final class _DynsshDockerTestCase extends DynsshTestCase {
 
         return port;
 
-        // ignore: avoid_catches_without_on_clauses
+        // ignore: avoid_catches_without_on_clauses for testing
       } catch (e) {
         await Future<void>.delayed(const Duration(seconds: 1));
         continue;

@@ -12,6 +12,6 @@ enum ReturnCode {
   final String raw;
   final bool isSuccess;
 
-  // ignore: avoid_positional_boolean_parameters
+  // ignore: avoid_positional_boolean_parameters for enums
   const ReturnCode(this.raw, this.isSuccess);
 }

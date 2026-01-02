@@ -7,7 +7,7 @@ import 'endpoints/dynssh_endpoint.dart';
 part 'dynssh_api.g.dart';
 
 @ShelfApi([DynsshEndpoint])
-// ignore: unused_element
+// ignore: unused_element for api generation
 class _DynsshApi {}
 
 class DynsshApiMirror extends DynsshApi {}
