@@ -74,7 +74,7 @@ class HttpServer {
       (next) => (request) async {
         try {
           return await next(request);
-          // ignore: avoid_catches_without_on_clauses
+          // ignore: avoid_catches_without_on_clauses for forwarding
         } catch (e, s) {
           final buffer = StringBuffer()
             ..writeln(e)
@@ -88,6 +88,7 @@ class HttpServer {
 extension on Pipeline {
   Pipeline debugAddMiddleware(Middleware middleware) {
     var result = this;
+    // ignore: prefer_asserts_with_message to add debug middleware
     assert(() {
       result = addMiddleware(middleware);
       return true;

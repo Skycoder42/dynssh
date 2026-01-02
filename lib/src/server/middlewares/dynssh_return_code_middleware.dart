@@ -51,7 +51,7 @@ class DynsshReturnCodeMiddleware {
         >= 500 => ReturnCode.$911.toResponse(),
         _ => response,
       };
-      // ignore: avoid_catches_without_on_clauses
+      // ignore: avoid_catches_without_on_clauses to hide errors from client
     } catch (e, s) {
       _logger.severe('Internal server error', e, s);
       return ReturnCode.$911.toResponse();

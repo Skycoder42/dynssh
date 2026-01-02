@@ -20,16 +20,16 @@ abstract base class DynsshTestCase {
     const testApiKey =
         'j8efu893pu8fsjifskjfo983u0f09ufe0suf093uf90uwu9eusfkdsf';
     const testAuthHeader =
-        // ignore: lines_longer_than_80_chars
+        // ignore: lines_longer_than_80_chars for testing
         'Basic dGVzdC5keW5zc2guc2t5Y29kZXI0Mi5kZTpqOGVmdTg5M3B1OGZzamlmc2tqZm85ODN1MGYwOXVmZTBzdWYwOTN1ZjkwdXd1OWV1c2ZrZHNm';
     const testForbiddenAuthHeader =
-        // ignore: lines_longer_than_80_chars
+        // ignore: lines_longer_than_80_chars for testing
         'Basic Zm9yYmlkZGVuLnRlc3QuZHluc3NoLnNreWNvZGVyNDIuZGU6ajhlZnU4OTNwdThmc2ppZnNramZvOTgzdTBmMDl1ZmUwc3VmMDkzdWY5MHV3dTlldXNma2RzZg==';
     const testUnknownAuthHeader =
-        // ignore: lines_longer_than_80_chars
+        // ignore: lines_longer_than_80_chars for testing
         'Basic dW5rbm93bi50ZXN0LmR5bnNzaC5za3ljb2RlcjQyLmRlOmo4ZWZ1ODkzcHU4ZnNqaWZza2pmbzk4M3UwZjA5dWZlMHN1ZjA5M3VmOTB1d3U5ZXVzZmtkc2Y=';
     const testKeylessAuthHeader =
-        // ignore: lines_longer_than_80_chars
+        // ignore: lines_longer_than_80_chars for testing
         'Basic a2V5bGVzcy50ZXN0LmR5bnNzaC5za3ljb2RlcjQyLmRlOmo4ZWZ1ODkzcHU4ZnNqaWZza2pmbzk4M3UwZjA5dWZlMHN1ZjA5M3VmOTB1d3U5ZXVzZmtkc2Y=';
 
     late Directory testDir;
@@ -108,7 +108,7 @@ abstract base class DynsshTestCase {
           ReturnCode.values.singleWhere((c) => c.raw == responseBody),
         );
 
-        // ignore: avoid_catches_without_on_clauses
+        // ignore: avoid_catches_without_on_clauses for testing
       } catch (e) {
         printOnFailure(e.toString());
         printOnFailure('RESPONSE: $responseBody');
@@ -232,7 +232,7 @@ abstract base class DynsshTestCase {
   Future<String> getServerIp();
 
   void _printLogRecord(LogRecord logRecord) =>
-      // ignore: avoid_print
+      // ignore: avoid_print for testing
       print('${logRecord.time.toIso8601String()} $logRecord');
 
   String _createSshConfig(String hostName) =>
