@@ -3,6 +3,8 @@ on:
     outputs:
       enabledPlatforms:
         value: ${{ jobs.ci.outputs.enabledPlatforms }}
+  workflow_dispatch:
+
 jobs:
   ci:
     name: CI
