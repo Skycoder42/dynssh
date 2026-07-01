@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas for testing
+// ignore_for_file: type_annotate_public_apis, unnecessary_lambdas for testing
 
 import 'dart:convert';
 import 'dart:io';
@@ -21,8 +21,8 @@ class MockConfig extends Mock implements Config {}
 class MockFile extends Mock implements File {}
 
 class TestSink extends StringBuffer implements IOSink {
-  int flushed = 0;
-  int closed = 0;
+  var flushed = 0;
+  var closed = 0;
 
   @override
   Encoding encoding = utf8;
