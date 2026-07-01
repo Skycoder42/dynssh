@@ -14,4 +14,4 @@ jobs:
       pull-requests: write
       actions: write
     with:
-      validationWorkflow: ci_base.yml
+      validationWorkflow: ci_base.yaml
