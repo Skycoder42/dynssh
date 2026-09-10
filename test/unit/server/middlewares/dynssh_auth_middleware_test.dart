@@ -11,17 +11,17 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-abstract class _Handler {
+abstract class _Handler() {
   FutureOr<Response> call(Request request);
 }
 
-class MockHandler extends Mock implements _Handler {}
+class MockHandler() extends Mock implements _Handler;
 
-class MockRequest extends Mock implements Request {}
+class MockRequest() extends Mock implements Request;
 
-class MockEndpointRef extends Mock implements EndpointRef {}
+class MockEndpointRef() extends Mock implements EndpointRef;
 
 void main() {
   setUpAll(() {
@@ -79,9 +79,8 @@ void main() {
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(any())).thenReturnAsync(null);
-          when(
-            () => mockConfig.findApiKey(testHostname),
-          ).thenReturnAsync(testApiKey);
+          when(() => mockConfig.findApiKey(testHostname))
+              .thenReturnAsync(testApiKey);
 
           when(() => mockRequest.url).thenReturn(
             Uri.https('', '/dynssh/update', <String, String>{

@@ -8,11 +8,11 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 import 'package:test/test.dart';
 
-class MockDynsshController extends Mock implements DynsshController {}
+class MockDynsshController() extends Mock implements DynsshController;
 
-class MockRequest extends Mock implements Request {}
+class MockRequest() extends Mock implements Request;
 
-class MockEndpointRef extends Mock implements EndpointRef {}
+class MockEndpointRef() extends Mock implements EndpointRef;
 
 void main() {
   setUpAll(() {
@@ -36,17 +36,15 @@ void main() {
       reset(mockRequest);
       reset(mockEndpointRef);
 
-      when(
-        () => mockEndpointRef.read(dynsshControllerProvider),
-      ).thenReturn(mockDynsshController);
+      when(() => mockEndpointRef.read(dynsshControllerProvider))
+          .thenReturn(mockDynsshController);
 
       sut = DynsshEndpoint(mockRequest, ref: mockEndpointRef);
     });
 
     test('update runs host update with given parameters, if valid', () async {
-      when(
-        () => mockDynsshController.updateHost(any()),
-      ).thenReturnAsync(ReturnCode.dnsErr);
+      when(() => mockDynsshController.updateHost(any()))
+          .thenReturnAsync(ReturnCode.dnsErr);
 
       final result = await sut.update(hostname: testHostname, myIP: testMyIP);
 
@@ -63,9 +61,8 @@ void main() {
     test(
       'updateViaGet runs host update with given parameters, if valid',
       () async {
-        when(
-          () => mockDynsshController.updateHost(any()),
-        ).thenReturnAsync(ReturnCode.noChg);
+        when(() => mockDynsshController.updateHost(any()))
+            .thenReturnAsync(ReturnCode.noChg);
 
         final result = await sut.update(hostname: testHostname, myIP: testMyIP);
 

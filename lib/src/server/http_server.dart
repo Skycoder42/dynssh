@@ -21,15 +21,11 @@ HttpServer httpServer(Ref ref) {
 }
 // coverage:ignore-end
 
-class HttpServer {
-  final Config _config;
-  final ProviderContainer _di;
+class HttpServer(final Config _config, final ProviderContainer _di) {
   final _logger = Logger('$HttpServer');
 
   late final io.HttpServer _server;
   var _open = false;
-
-  HttpServer(this._config, this._di);
 
   int get port => _server.port;
 

@@ -10,7 +10,6 @@ part 'posix_adapter.g.dart';
 PosixAdapter posixAdapter(Ref ref) => const PosixAdapter();
 // coverage:ignore-end
 
-class PosixAdapter {
-  const PosixAdapter();
+class const PosixAdapter() {
   bool get isRoot => posix.geteuid() == 0;
 }

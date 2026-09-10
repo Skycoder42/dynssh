@@ -1,4 +1,4 @@
-enum ReturnCode {
+enum ReturnCode(final String raw, final bool isSuccess) {
   good('good', true),
   noChg('nochg', true),
   badAuth('badauth', false),
@@ -7,11 +7,5 @@ enum ReturnCode {
   abuse('abuse', false),
   badAgent('badagent', false),
   dnsErr('dnserr', false),
-  $911('911', false);
-
-  final String raw;
-  final bool isSuccess;
-
-  // ignore: avoid_positional_boolean_parameters for enums
-  const ReturnCode(this.raw, this.isSuccess);
+  $911('911', false),
 }
