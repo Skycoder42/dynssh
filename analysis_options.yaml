@@ -1,6 +1,6 @@
 include: package:dart_test_tools/strict.yaml
 plugins:
-  dart_test_tools: ^7.2.6
+  dart_test_tools: ^7.3.2
 analyzer:
   exclude:
     - "**.freezed.dart"

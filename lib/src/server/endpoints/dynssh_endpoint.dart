@@ -9,12 +9,11 @@ import '../middlewares/dynssh_auth_middleware.dart';
 import '../middlewares/dynssh_return_code_middleware.dart';
 
 @ApiEndpoint('/dynssh', middleware: DynsshEndpoint.dynsshMiddleware)
-class DynsshEndpoint extends ShelfEndpoint {
+class DynsshEndpoint(super.request, {@visibleForTesting super.ref})
+    extends ShelfEndpoint {
   static const hostNameParameterKey = 'hostname';
 
   final _logger = Logger('$DynsshEndpoint');
-
-  DynsshEndpoint(super.request, {@visibleForTesting super.ref});
 
   @Post('/update')
   Future<TResponse<String>> update({

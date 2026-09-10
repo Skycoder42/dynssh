@@ -3,9 +3,9 @@ import 'ssh_config_entry.dart';
 class SshConfigComment extends SshConfigEntry {
   final String? comment;
 
-  SshConfigComment(String this.comment, [super._raw]);
+  new(String this.comment, [super._raw]);
 
-  SshConfigComment.empty([super._raw]) : comment = null;
+  new empty([super._raw]) : comment = null;
 
   @override
   String create({required int indentation}) {

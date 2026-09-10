@@ -5,9 +5,9 @@ import 'package:dynssh/src/ssh/ssh_known_hosts_parser.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockProcessAdapter extends Mock implements ProcessAdapter {}
+class MockProcessAdapter() extends Mock implements ProcessAdapter;
 
-class MockSshKnownHostsParser extends Mock implements SshKnownHostsParser {}
+class MockSshKnownHostsParser() extends Mock implements SshKnownHostsParser;
 
 void main() {
   setUpAll(() {
@@ -39,9 +39,8 @@ void main() {
         final testStream = Stream.value('');
         const testResult = {'a': '1', 'b': '2'};
 
-        when(
-          () => mockProcessAdapter.streamLines(any(), any()),
-        ).thenStream(testStream);
+        when(() => mockProcessAdapter.streamLines(any(), any()))
+            .thenStream(testStream);
         when(
           () =>
               mockSshKnownHostsParser.getHostKeysFromLines(any(), any(), any()),

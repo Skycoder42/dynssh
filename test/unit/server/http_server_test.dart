@@ -11,11 +11,11 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-class MockDynsshApi extends Mock implements DynsshApiMirror {}
+class MockDynsshApi() extends Mock implements DynsshApiMirror;
 
-class FakeRequest extends Fake implements Request {}
+class FakeRequest() extends Fake implements Request;
 
 void main() {
   setUpAll(() {

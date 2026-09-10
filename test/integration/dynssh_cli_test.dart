@@ -10,7 +10,7 @@ import 'dynssh_test_case.dart';
 
 void main() => _DynsshCliTestCase().call();
 
-final class _DynsshCliTestCase extends DynsshTestCase {
+final class _DynsshCliTestCase() extends DynsshTestCase {
   @override
   Future<int> runDynssh(Options testOptions) async {
     final di = ProviderContainer();
