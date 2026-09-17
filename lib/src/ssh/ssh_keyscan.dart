@@ -13,12 +13,10 @@ SshKeyscan sshKeyscan(Ref ref) => SshKeyscan(
 );
 // coverage:ignore-end
 
-class SshKeyscan {
-  final ProcessAdapter _processAdapter;
-  final SshKnownHostsParser _sshKnownHostsParser;
-
-  SshKeyscan(this._processAdapter, this._sshKnownHostsParser);
-
+class SshKeyscan(
+  final ProcessAdapter _processAdapter,
+  final SshKnownHostsParser _sshKnownHostsParser,
+) {
   Future<Map<String, String>> scanHost(String host, [int? port]) async {
     final keyscanLines = _processAdapter.streamLines('ssh-keyscan', [
       if (port != null) ...['-p', port.toString()],

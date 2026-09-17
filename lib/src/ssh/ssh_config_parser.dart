@@ -20,11 +20,8 @@ SshConfigParser sshConfigParser(Ref ref) =>
     SshConfigParser(ref.watch(configProvider));
 // coverage:ignore-end
 
-class SshConfigParser {
-  final Config _config;
+class SshConfigParser(final Config _config) {
   final _logger = Logger('$SshConfigParser');
-
-  SshConfigParser(this._config);
 
   Future<SshConfig> parse() async {
     final sshConfigFile = _getSshConfigFile();

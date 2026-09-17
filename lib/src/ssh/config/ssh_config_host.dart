@@ -2,18 +2,17 @@ import 'ssh_config_entry.dart';
 import 'ssh_config_option.dart';
 import 'ssh_config_section.dart';
 
-class SshConfigHost extends SshConfigOption
+class SshConfigHost(
+  List<String> patterns, [
+  List<SshConfigEntry>? entries,
+  String? raw,
+]) extends SshConfigOption
     with SshConfigSectionMixin
     implements SshConfigSection {
   @override
-  final List<SshConfigEntry> entries;
+  final List<SshConfigEntry> entries = entries ?? [];
 
-  SshConfigHost(
-    List<String> patterns, [
-    List<SshConfigEntry>? entries,
-    String? raw,
-  ]) : entries = entries ?? [],
-       super('Host', patterns, raw);
+  this : super('Host', patterns, raw);
 
   List<String> get patterns => arguments;
 

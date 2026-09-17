@@ -12,39 +12,35 @@ part 'options.g.dart';
 
 @CliOptions()
 @immutable
-class Options {
+class const Options({
   @CliOption(
     abbr: 'H',
     valueHelp: 'host',
     provideDefaultToOverride: true,
     help: 'The host address to listen to.',
   )
-  final String host;
-
+  required final String host,
   @CliOption(
     abbr: 'p',
     valueHelp: 'port',
     defaultsTo: 80,
     help: 'The port to listen to.',
   )
-  final int port;
-
+  required final int port,
   @CliOption(
     abbr: 'k',
     valueHelp: 'path',
     help: 'The path to the API-Key json file.',
     provideDefaultToOverride: true,
   )
-  final String apiKeyPath;
-
+  required final String apiKeyPath,
   @CliOption(
     abbr: 'd',
     valueHelp: 'path',
     help: 'The path to the ssh directory where configuration files are stored.',
     provideDefaultToOverride: true,
   )
-  final String sshDirectory;
-
+  required final String sshDirectory,
   @CliOption(
     convert: _logLevelFromString,
     abbr: 'l',
@@ -66,25 +62,15 @@ class Options {
         'Customize the logging level. '
         'Listed from most verbose (all) to least verbose (off)',
   )
-  final Level logLevel;
-
+  required final Level logLevel,
   @CliOption(
     abbr: 'h',
     negatable: false,
     defaultsTo: false,
     help: 'Prints usage information.',
   )
-  final bool help;
-
-  const Options({
-    required this.host,
-    required this.port,
-    required this.apiKeyPath,
-    required this.sshDirectory,
-    required this.logLevel,
-    this.help = false,
-  });
-
+  final bool help = false,
+}) {
   void logAll(Logger logger) => logger
     ..config('host: $host')
     ..config('port: $port')
@@ -116,9 +102,9 @@ class Options {
         return Directory.current.path;
       }
 
-      return Directory(
-        homePath,
-      ).uri.resolve('.config/$pathSuffix').toFilePath();
+      return Directory(homePath).uri
+          .resolve('.config/$pathSuffix')
+          .toFilePath();
     }
   }
 

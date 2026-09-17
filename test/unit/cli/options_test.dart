@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockPosixAdapter extends Mock implements PosixAdapter {}
+class MockPosixAdapter() extends Mock implements PosixAdapter;
 
 void main() {
   group('$Options', () {

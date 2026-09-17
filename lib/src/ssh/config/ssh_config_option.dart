@@ -1,12 +1,11 @@
 import 'ssh_config_entry.dart';
 
-class SshConfigOption extends SshConfigEntry {
-  final String _keyword;
-
-  final List<String> arguments;
-
-  SshConfigOption(this._keyword, List<String> arguments, [super.raw])
-    : arguments = List.unmodifiable(arguments);
+class SshConfigOption(
+  final String _keyword,
+  List<String> arguments, [
+  super.raw,
+]) extends SshConfigEntry {
+  final List<String> arguments = List.unmodifiable(arguments);
 
   String get keyword => _keyword.toLowerCase();
 

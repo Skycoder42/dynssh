@@ -9,9 +9,9 @@ import 'package:dynssh/src/ssh/ssh_known_hosts_parser.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-class MockFile extends Mock implements File {}
+class MockFile() extends Mock implements File;
 
 void main() {
   group('$SshKnownHostsParser', () {
@@ -115,9 +115,8 @@ other.$testHost typeC key3
 ''';
 
         when(() => mockSshKnownHostsFile.existsSync()).thenReturn(true);
-        when(
-          () => mockSshKnownHostsFile.openRead(),
-        ).thenStream(Stream.value(utf8.encode(testContent)));
+        when(() => mockSshKnownHostsFile.openRead())
+            .thenStream(Stream.value(utf8.encode(testContent)));
 
         final result = await sut.getHostKeys(testHost);
 
@@ -144,9 +143,8 @@ other.$testHost typeC key3
         reset(mockSshKnownHostsFile);
 
         when(() => mockSshKnownHostsFile.path).thenReturn('path');
-        when(
-          () => mockSshKnownHostsFile.writeAsString(any()),
-        ).thenReturnAsync(mockSshKnownHostsFile);
+        when(() => mockSshKnownHostsFile.writeAsString(any()))
+            .thenReturnAsync(mockSshKnownHostsFile);
 
         when(() => mockConfig.sshFile(any())).thenReturn(mockSshKnownHostsFile);
       });
@@ -212,9 +210,8 @@ $testHost typeB key2
         ],
         (fixture) async {
           when(() => mockSshKnownHostsFile.existsSync()).thenReturn(true);
-          when(
-            () => mockSshKnownHostsFile.readAsString(),
-          ).thenReturnAsync(fixture.$1);
+          when(() => mockSshKnownHostsFile.readAsString())
+              .thenReturnAsync(fixture.$1);
 
           await sut.replaceHost(
             oldHost: testHost,

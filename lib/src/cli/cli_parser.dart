@@ -16,11 +16,8 @@ part 'cli_parser.g.dart';
 CliParser cliParser(Ref ref) => CliParser(ref.watch(posixAdapterProvider));
 // coverage:ignore-end
 
-class CliParser {
-  final PosixAdapter _posixAdapter;
+class CliParser(final PosixAdapter _posixAdapter) {
   final _logger = Logger('$CliParser');
-
-  CliParser(this._posixAdapter);
 
   Options parse(List<String> arguments) {
     final argParser = Options.buildArgParser(_posixAdapter);

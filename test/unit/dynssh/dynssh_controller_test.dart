@@ -14,15 +14,15 @@ import 'package:dynssh/src/ssh/ssh_known_hosts_parser.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockSshConfigParser extends Mock implements SshConfigParser {}
+class MockSshConfigParser() extends Mock implements SshConfigParser;
 
-class MockSshKnownHostsParser extends Mock implements SshKnownHostsParser {}
+class MockSshKnownHostsParser() extends Mock implements SshKnownHostsParser;
 
-class MockSshKeyscan extends Mock implements SshKeyscan {}
+class MockSshKeyscan() extends Mock implements SshKeyscan;
 
-class MockSshConfig extends Mock implements SshConfig {}
+class MockSshConfig() extends Mock implements SshConfig;
 
-class MockSshConfigHost extends Mock implements SshConfigHost {}
+class MockSshConfigHost() extends Mock implements SshConfigHost;
 
 void main() {
   setUpAll(() {
@@ -81,9 +81,8 @@ void main() {
       );
 
       test('runs update synchronized', () async {
-        when(
-          () => mockSshConfigParser.parse(),
-        ).thenReturnAsync(Completer<SshConfig>().future);
+        when(() => mockSshConfigParser.parse())
+            .thenReturnAsync(Completer<SshConfig>().future);
 
         final f1 = sut.updateHost(testHostUpdate);
         final f2 = sut.updateHost(testHostUpdate);
@@ -110,9 +109,8 @@ void main() {
       });
 
       test('rejects update if host config has not changed', () async {
-        when(
-          () => mockSshConfigHost['HostName'],
-        ).thenReturn([testHostUpdate.ipAddress]);
+        when(() => mockSshConfigHost['HostName'])
+            .thenReturn([testHostUpdate.ipAddress]);
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -128,9 +126,8 @@ void main() {
 
       test('rejects update if there are no known host keys for host', () async {
         when(() => mockSshConfigHost.patterns).thenReturn([testOldAddress]);
-        when(
-          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
-        ).thenReturnAsync(const {});
+        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
+            .thenReturnAsync(const {});
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -151,12 +148,10 @@ void main() {
         const otherHostKeys = {'a': 'key1', 'b': 'key-other'};
 
         when(() => mockSshConfigHost['HostName']).thenReturn([testOldAddress]);
-        when(
-          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
-        ).thenReturnAsync(oldHostKeys);
-        when(
-          () => mockSshKeyscan.scanHost(any(), any()),
-        ).thenReturnAsync(otherHostKeys);
+        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
+            .thenReturnAsync(oldHostKeys);
+        when(() => mockSshKeyscan.scanHost(any(), any()))
+            .thenReturnAsync(otherHostKeys);
 
         final result = await sut.updateHost(testHostUpdate);
 
@@ -177,12 +172,10 @@ void main() {
 
         when(() => mockSshConfigHost['HostName']).thenReturn([testOldAddress]);
         when(() => mockSshConfigHost['Port']).thenReturn(['123']);
-        when(
-          () => mockSshKnownHostsParser.getHostKeys(any(), any()),
-        ).thenReturnAsync(hostKeys);
-        when(
-          () => mockSshKeyscan.scanHost(any(), any()),
-        ).thenReturnAsync(hostKeys);
+        when(() => mockSshKnownHostsParser.getHostKeys(any(), any()))
+            .thenReturnAsync(hostKeys);
+        when(() => mockSshKeyscan.scanHost(any(), any()))
+            .thenReturnAsync(hostKeys);
 
         final result = await sut.updateHost(testHostUpdate);
 

@@ -13,10 +13,8 @@ part 'config.g.dart';
 Config config(Ref ref) => Config();
 // coverage:ignore-end
 
-class Config {
+class Config() {
   late final Options _cliOptions;
-
-  Config();
 
   InternetAddress get host => InternetAddress(_cliOptions.host);
 

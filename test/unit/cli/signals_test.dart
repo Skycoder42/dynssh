@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:test/test.dart';
 
-class MockProcessSignal extends Mock implements ProcessSignal {}
+class MockProcessSignal() extends Mock implements ProcessSignal;
 
 void main() {
   group('ProviderContainerX', () {

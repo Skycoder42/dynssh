@@ -16,11 +16,11 @@ import 'package:dynssh/src/ssh/ssh_config_parser.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-class MockFile extends Mock implements File {}
+class MockFile() extends Mock implements File;
 
-class TestSink extends StringBuffer implements IOSink {
+class TestSink() extends StringBuffer implements IOSink {
   var flushed = 0;
   var closed = 0;
 
@@ -94,9 +94,8 @@ void main() {
         _configTestData.map((t) => (t.read, t.config)),
         (fixture) async {
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(
-            () => mockSshConfigFile.openRead(),
-          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(() => mockSshConfigFile.openRead())
+              .thenStream(Stream.value(utf8.encode(fixture.$1)));
 
           final result = await sut.parse();
 
@@ -134,9 +133,8 @@ void main() {
         (fixture) async {
           final testSink = TestSink();
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(
-            () => mockSshConfigFile.openRead(),
-          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(() => mockSshConfigFile.openRead())
+              .thenStream(Stream.value(utf8.encode(fixture.$1)));
           when(() => mockSshConfigFile.openWrite()).thenReturn(testSink);
 
           final config = await sut.parse();
@@ -154,9 +152,8 @@ void main() {
         (fixture) async {
           final testSink = TestSink();
           when(() => mockSshConfigFile.existsSync()).thenReturn(true);
-          when(
-            () => mockSshConfigFile.openRead(),
-          ).thenStream(Stream.value(utf8.encode(fixture.$1)));
+          when(() => mockSshConfigFile.openRead())
+              .thenStream(Stream.value(utf8.encode(fixture.$1)));
           when(() => mockSshConfigFile.openWrite()).thenReturn(testSink);
 
           final config = await sut.parse();

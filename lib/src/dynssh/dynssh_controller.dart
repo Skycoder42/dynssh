@@ -21,22 +21,17 @@ DynsshController dynsshController(Ref ref) => DynsshController(
 );
 // coverage:ignore-end
 
-class DynsshController {
+class DynsshController(
+  final SshConfigParser _sshConfigParser,
+  final SshKnownHostsParser _sshKnownHostsParser,
+  final SshKeyscan _sshKeyscan,
+) {
   static const _hostNameKey = 'HostName';
   static const _portKey = 'Port';
 
-  final SshConfigParser _sshConfigParser;
-  final SshKnownHostsParser _sshKnownHostsParser;
-  final SshKeyscan _sshKeyscan;
   final _logger = Logger('$DynsshController');
 
   final _lock = Lock();
-
-  DynsshController(
-    this._sshConfigParser,
-    this._sshKnownHostsParser,
-    this._sshKeyscan,
-  );
 
   Future<ReturnCode> updateHost(HostUpdate hostUpdate) =>
       _lock.synchronized(() async {

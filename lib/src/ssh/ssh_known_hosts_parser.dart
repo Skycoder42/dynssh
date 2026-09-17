@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,11 +14,8 @@ SshKnownHostsParser sshKnownHostsParser(Ref ref) =>
     SshKnownHostsParser(ref.watch(configProvider));
 // coverage:ignore-end
 
-class SshKnownHostsParser {
-  final Config _config;
+class SshKnownHostsParser(final Config _config) {
   final _logger = Logger('$SshKnownHostsParser');
-
-  SshKnownHostsParser(this._config);
 
   Future<Map<String, String>> getHostKeysFromLines(
     Stream<String> hostLines,
