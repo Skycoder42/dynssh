@@ -160,6 +160,15 @@ void main() {
 
         verify(() => mockDynsshApi(any(that: isA<Request>()))).called(1);
       });
+
+      test('returns internal server error if dynssh api throws', () async {
+        when(() => mockDynsshApi(any())).thenThrow(Exception('test-error'));
+
+        final response = await http.get(testBaseUrl());
+
+        expect(response.statusCode, HttpStatus.internalServerError);
+        expect(response.body, contains('test-error'));
+      });
     });
   });
 }

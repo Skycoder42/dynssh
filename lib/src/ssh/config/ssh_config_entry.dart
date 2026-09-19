@@ -13,7 +13,7 @@ abstract class SshConfigEntry(final String? _raw) {
     if (indentation > 0) {
       buffer.write(' ' * indentation);
     } else if (indentation < 0) {
-      buffer.write('\t' * -1 * indentation);
+      buffer.write('\t' * (-1 * indentation));
     }
   }
 }
