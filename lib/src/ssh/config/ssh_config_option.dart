@@ -3,7 +3,7 @@ import 'ssh_config_entry.dart';
 class SshConfigOption(
   final String _keyword,
   List<String> arguments, [
-  super.raw,
+  super._raw,
 ]) extends SshConfigEntry {
   final List<String> arguments = List.unmodifiable(arguments);
 

@@ -36,7 +36,7 @@ class SshConfigParser(final Config _config) {
         .openRead()
         .transform(utf8.decoder)
         .transform(const LineSplitter());
-    return _parseConfigLines(configStream);
+    return await _parseConfigLines(configStream);
   }
 
   Future<void> update(SshConfig config) async {

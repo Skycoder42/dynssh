@@ -56,7 +56,7 @@ class SshKnownHostsParser(final Config _config) {
         .openRead()
         .transform(utf8.decoder)
         .transform(const LineSplitter());
-    return getHostKeysFromLines(hostLines, host, port);
+    return await getHostKeysFromLines(hostLines, host, port);
   }
 
   Future<void> replaceHost({

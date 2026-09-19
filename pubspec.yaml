@@ -26,9 +26,9 @@ dependencies:
   riverpod_annotation: ^4.0.7
   shelf: ^1.4.2
   shelf_api: ^1.4.5
+  shelf_router: ^1.1.4
   synchronized: ^3.4.2
 
-  shelf_router: any
 dev_dependencies:
   build_cli: ^2.2.13
   build_runner: ^2.16.1

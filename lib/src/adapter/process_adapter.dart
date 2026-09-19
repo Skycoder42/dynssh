@@ -24,6 +24,7 @@ class ProcessFailed(
   // coverage:ignore-end
 }
 
+// ignore: close_sinks, this is the process's real stderr, not owned by this class
 class ProcessAdapter(final IOSink _stderr) {
   final _logger = Logger('$ProcessAdapter');
 
