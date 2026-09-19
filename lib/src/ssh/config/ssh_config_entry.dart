@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
-abstract class SshConfigEntry {
-  final String? _raw;
-
-  SshConfigEntry(this._raw);
-
+abstract class SshConfigEntry(final String? _raw) {
   @nonVirtual
   String write({int indentation = 0}) =>
       _raw ?? create(indentation: indentation);
@@ -17,7 +13,7 @@ abstract class SshConfigEntry {
     if (indentation > 0) {
       buffer.write(' ' * indentation);
     } else if (indentation < 0) {
-      buffer.write('\t' * -1 * indentation);
+      buffer.write('\t' * (-1 * indentation));
     }
   }
 }

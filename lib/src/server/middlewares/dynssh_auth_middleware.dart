@@ -14,10 +14,8 @@ import 'dynssh_return_code_middleware.dart';
 Middleware dynsshAuth() => DynsshAuthMiddleware().call;
 
 @visibleForTesting
-class DynsshAuthMiddleware {
+class DynsshAuthMiddleware() {
   final _logger = Logger('$DynsshAuthMiddleware');
-
-  DynsshAuthMiddleware();
 
   Handler call(
     Handler next, {

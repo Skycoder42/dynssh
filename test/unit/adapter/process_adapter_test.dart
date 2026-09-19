@@ -4,7 +4,7 @@ import 'package:dynssh/src/adapter/process_adapter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class MockStdout extends Mock implements Stdout {}
+class MockStdout() extends Mock implements Stdout;
 
 void main() {
   group('$ProcessAdapter', () {

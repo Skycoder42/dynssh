@@ -9,7 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
-abstract base class DynsshTestCase {
+abstract base class DynsshTestCase() {
   static const _testHostname = 'test.dynssh.skycoder42.de';
   static const _testUnauthorizedHostname = 'unauthorized.$_testHostname';
   static const _testForbiddenHostname = 'forbidden.$_testHostname';
@@ -65,9 +65,8 @@ abstract base class DynsshTestCase {
         logLevel: Level.ALL,
       );
 
-      await File(
-        '${testOptions.sshDirectory}/config',
-      ).writeAsString(_createSshConfig(getServerName()));
+      await File('${testOptions.sshDirectory}/config')
+          .writeAsString(_createSshConfig(getServerName()));
 
       port = await runDynssh(testOptions);
       serverIp = await getServerIp();

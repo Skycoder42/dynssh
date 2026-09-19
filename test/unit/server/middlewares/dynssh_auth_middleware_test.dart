@@ -7,21 +7,22 @@ import 'package:dynssh/src/dynssh/return_code.dart';
 import 'package:dynssh/src/server/middlewares/dynssh_auth_middleware.dart';
 import 'package:dynssh/src/server/middlewares/dynssh_return_code_middleware.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-abstract class _Handler {
+abstract class _Handler() {
   FutureOr<Response> call(Request request);
 }
 
-class MockHandler extends Mock implements _Handler {}
+class MockHandler() extends Mock implements _Handler;
 
-class MockRequest extends Mock implements Request {}
+class MockRequest() extends Mock implements Request;
 
-class MockEndpointRef extends Mock implements EndpointRef {}
+class MockEndpointRef() extends Mock implements EndpointRef;
 
 void main() {
   setUpAll(() {
@@ -79,9 +80,8 @@ void main() {
         ],
         (fixture) async {
           when(() => mockConfig.findApiKey(any())).thenReturnAsync(null);
-          when(
-            () => mockConfig.findApiKey(testHostname),
-          ).thenReturnAsync(testApiKey);
+          when(() => mockConfig.findApiKey(testHostname))
+              .thenReturnAsync(testApiKey);
 
           when(() => mockRequest.url).thenReturn(
             Uri.https('', '/dynssh/update', <String, String>{
@@ -105,6 +105,33 @@ void main() {
           }
         },
       );
+
+      test('uses ref obtained from the request if not overridden', () async {
+        when(() => mockConfig.findApiKey(testHostname))
+            .thenReturnAsync(testApiKey);
+        when(() => mockHandler(any())).thenReturn(ReturnCode.good.toResponse());
+
+        final container = ProviderContainer(
+          overrides: [configProvider.overrideWithValue(mockConfig)],
+        );
+        addTearDown(container.dispose);
+
+        final pipeline = const Pipeline()
+            .addMiddleware(rivershelfContainer(container))
+            .addMiddleware(DynsshAuthMiddleware().call)
+            .addHandler(mockHandler.call);
+
+        final request = Request(
+          'GET',
+          Uri.https('', '/dynssh/update', {'hostname': testHostname}),
+          headers: {HttpHeaders.authorizationHeader: testAuthHeader},
+        );
+
+        final result = await pipeline(request);
+
+        expect(result.statusCode, HttpStatus.ok);
+        verify(() => mockConfig.findApiKey(testHostname));
+      });
     });
   });
 }

@@ -7,8 +7,7 @@ part 'api_key_config.g.dart';
 
 @freezed
 sealed class ApiKeyConfig with _$ApiKeyConfig {
-  const factory ApiKeyConfig(Map<String, String> apiKeys) = _ApiKeyConfig;
+  const factory(Map<String, String> apiKeys) = _ApiKeyConfig;
 
-  factory ApiKeyConfig.fromJson(Map<String, dynamic> json) =>
-      _$ApiKeyConfigFromJson(json);
+  factory fromJson(Map<String, dynamic> json) => _$ApiKeyConfigFromJson(json);
 }

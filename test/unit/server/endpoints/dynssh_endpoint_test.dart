@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dart_test_tools/test.dart';
 import 'package:dynssh/src/dynssh/dynssh_controller.dart';
 import 'package:dynssh/src/dynssh/return_code.dart';
@@ -8,11 +10,11 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_api/shelf_api.dart';
 import 'package:test/test.dart';
 
-class MockDynsshController extends Mock implements DynsshController {}
+class MockDynsshController() extends Mock implements DynsshController;
 
-class MockRequest extends Mock implements Request {}
+class MockRequest() extends Mock implements Request;
 
-class MockEndpointRef extends Mock implements EndpointRef {}
+class MockEndpointRef() extends Mock implements EndpointRef;
 
 void main() {
   setUpAll(() {
@@ -36,17 +38,15 @@ void main() {
       reset(mockRequest);
       reset(mockEndpointRef);
 
-      when(
-        () => mockEndpointRef.read(dynsshControllerProvider),
-      ).thenReturn(mockDynsshController);
+      when(() => mockEndpointRef.read(dynsshControllerProvider))
+          .thenReturn(mockDynsshController);
 
       sut = DynsshEndpoint(mockRequest, ref: mockEndpointRef);
     });
 
     test('update runs host update with given parameters, if valid', () async {
-      when(
-        () => mockDynsshController.updateHost(any()),
-      ).thenReturnAsync(ReturnCode.dnsErr);
+      when(() => mockDynsshController.updateHost(any()))
+          .thenReturnAsync(ReturnCode.dnsErr);
 
       final result = await sut.update(hostname: testHostname, myIP: testMyIP);
 
@@ -63,11 +63,13 @@ void main() {
     test(
       'updateViaGet runs host update with given parameters, if valid',
       () async {
-        when(
-          () => mockDynsshController.updateHost(any()),
-        ).thenReturnAsync(ReturnCode.noChg);
+        when(() => mockDynsshController.updateHost(any()))
+            .thenReturnAsync(ReturnCode.noChg);
 
-        final result = await sut.update(hostname: testHostname, myIP: testMyIP);
+        final result = await sut.updateViaGet(
+          hostName: testHostname,
+          myIP: testMyIP,
+        );
 
         expect(result.statusCode, 200);
         expect(result.readAsString(), completion(ReturnCode.noChg.raw));
@@ -77,6 +79,23 @@ void main() {
             const HostUpdate(hostname: testHostname, ipAddress: testMyIP),
           ),
         ).called(1);
+      },
+    );
+
+    test(
+      'dynsshMiddleware composes the auth and return code middlewares',
+      () async {
+        final middleware = DynsshEndpoint.dynsshMiddleware();
+        final handler = middleware((request) => Response.ok('ok'));
+
+        final request = Request(
+          'GET',
+          Uri.parse('http://localhost/dynssh/update'),
+        );
+        final response = await handler(request);
+
+        expect(response.statusCode, HttpStatus.badRequest);
+        expect(response.readAsString(), completion(ReturnCode.notFqdn.raw));
       },
     );
   });

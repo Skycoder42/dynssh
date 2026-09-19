@@ -32,7 +32,7 @@ extension ReturnCodeX on ReturnCode {
 }
 
 @visibleForTesting
-class DynsshReturnCodeMiddleware {
+class DynsshReturnCodeMiddleware() {
   static const returnCodeContextKey = 'returnCode';
 
   final _logger = Logger('$DynsshReturnCodeMiddleware');

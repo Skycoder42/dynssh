@@ -11,13 +11,11 @@ part 'process_adapter.g.dart';
 ProcessAdapter processAdapter(Ref ref) => ProcessAdapter(stderr);
 // coverage:ignore-end
 
-class ProcessFailed implements Exception {
-  final String executable;
-  final List<String> arguments;
-  final int exitCode;
-
-  ProcessFailed(this.executable, this.arguments, this.exitCode);
-
+class ProcessFailed(
+  final String executable,
+  final List<String> arguments,
+  final int exitCode,
+) implements Exception {
   // coverage:ignore-start
   @override
   String toString() =>
@@ -26,11 +24,9 @@ class ProcessFailed implements Exception {
   // coverage:ignore-end
 }
 
-class ProcessAdapter {
-  final IOSink _stderr;
+// ignore: close_sinks, this is the process's real stderr, not owned by this class
+class ProcessAdapter(final IOSink _stderr) {
   final _logger = Logger('$ProcessAdapter');
-
-  ProcessAdapter(this._stderr);
 
   Stream<String> streamLines(
     String executable,

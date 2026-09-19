@@ -8,13 +8,13 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
-abstract class _Handler {
+abstract class _Handler() {
   FutureOr<Response> call(Request request);
 }
 
-class MockHandler extends Mock implements _Handler {}
+class MockHandler() extends Mock implements _Handler;
 
-class FakeRequest extends Fake implements Request {}
+class FakeRequest() extends Fake implements Request;
 
 void main() {
   setUpAll(() {

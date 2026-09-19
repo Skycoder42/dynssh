@@ -6,8 +6,6 @@ part 'host_update.freezed.dart';
 
 @freezed
 sealed class HostUpdate with _$HostUpdate {
-  const factory HostUpdate({
-    required String hostname,
-    required String ipAddress,
-  }) = _HostUpdate;
+  const factory({required String hostname, required String ipAddress}) =
+      _HostUpdate;
 }

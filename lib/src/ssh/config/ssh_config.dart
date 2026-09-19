@@ -1,13 +1,10 @@
 import 'ssh_config_globals.dart';
 import 'ssh_config_host.dart';
 
-class SshConfig {
-  final SshConfigGlobals globals;
-
-  final List<SshConfigHost> hosts;
-
-  SshConfig(this.globals, this.hosts);
-
+class SshConfig(
+  final SshConfigGlobals globals,
+  final List<SshConfigHost> hosts,
+) {
   void addEmptyLine() => globals.addEmptyLine();
 
   void addComment(String comment) => globals.addComment(comment);

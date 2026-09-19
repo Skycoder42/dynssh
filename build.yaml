@@ -4,3 +4,8 @@ targets:
       shelf_api_builder:
         options:
           generateClient: false
+      source_gen:combining_builder:
+        options:
+          ignore_for_file:
+            - lines_longer_than_80_chars
+            - document_ignores

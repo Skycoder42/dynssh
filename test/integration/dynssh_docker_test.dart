@@ -14,7 +14,7 @@ import 'dynssh_test_case.dart';
 
 void main() => _DynsshDockerTestCase().call();
 
-final class _DynsshDockerTestCase extends DynsshTestCase {
+final class _DynsshDockerTestCase() extends DynsshTestCase {
   late String _containerName;
 
   @override

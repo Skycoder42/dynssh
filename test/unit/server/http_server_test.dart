@@ -11,11 +11,11 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
-class MockConfig extends Mock implements Config {}
+class MockConfig() extends Mock implements Config;
 
-class MockDynsshApi extends Mock implements DynsshApiMirror {}
+class MockDynsshApi() extends Mock implements DynsshApiMirror;
 
-class FakeRequest extends Fake implements Request {}
+class FakeRequest() extends Fake implements Request;
 
 void main() {
   setUpAll(() {
@@ -159,6 +159,15 @@ void main() {
         );
 
         verify(() => mockDynsshApi(any(that: isA<Request>()))).called(1);
+      });
+
+      test('returns internal server error if dynssh api throws', () async {
+        when(() => mockDynsshApi(any())).thenThrow(Exception('test-error'));
+
+        final response = await http.get(testBaseUrl());
+
+        expect(response.statusCode, HttpStatus.internalServerError);
+        expect(response.body, contains('test-error'));
       });
     });
   });
