@@ -2,6 +2,10 @@ name: Continuous integration
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - ".github/workflows/docker_weekly.yaml"
+      - ".github/workflows/docker_update.yaml"
   push:
     paths-ignore:
       - ".github/workflows/docker_weekly.yaml"
@@ -40,3 +44,19 @@ jobs:
     secrets:
       dockerHubUsername: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerHubToken: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  renovate:
+    name: Renovate
+    needs:
+      - ci
+      - build
+      - release
+      - docker
+    if: ${{ !cancelled() }}
+    uses: Skycoder42/dart_test_tools/.github/workflows/renovate-finish.yml@main
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    with:
+      needs: ${{ toJSON(needs) }}
