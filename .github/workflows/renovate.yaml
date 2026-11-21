@@ -17,5 +17,3 @@ jobs:
       pull-requests: write
       issues: write
       statuses: write
-    with:
-      flutterCompat: false
